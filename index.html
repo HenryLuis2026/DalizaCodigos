@@ -1,0 +1,1778 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DALIZA — Etiquetas</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Jost:wght@300;400;500;600&display=swap');
+
+  :root {
+    --cream: #F9F5EF;
+    --ink: #1A1714;
+    --gold: #B8965A;
+    --gold-light: #D4B483;
+    --muted: #8A7D6E;
+    --border: #E2D9CF;
+    --surface: #FFFFFF;
+    --danger: #9B3A3A;
+    --success: #3A6B4A;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Jost', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    font-size: 15px;
+  }
+  body.panel-open { overflow: hidden; }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 16px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.25);
+  }
+  .brand { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 300; letter-spacing: 6px; text-transform: uppercase; }
+  .brand span { color: var(--gold); }
+  .header-sub { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-top: 2px; }
+
+  /* Botón de lista de impresión - más obvio y grande */
+  .print-list-btn {
+    background: var(--gold);
+    color: var(--ink);
+    font-weight: 700;
+    font-size: 14px;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    border: none;
+    font-family: 'Jost', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+  .print-list-btn:hover { background: var(--gold-light); }
+  .print-list-btn:active { transform: scale(0.97); }
+  .print-list-btn .badge {
+    background: var(--ink);
+    color: var(--cream);
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 700;
+  }
+  .print-list-btn.has-items { animation: pulse-badge 0.4s ease; }
+  @keyframes pulse-badge { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+
+  /* ── GUÍA DE 3 PASOS ── */
+  .steps-banner {
+    background: linear-gradient(135deg, #2A2420, #1A1714);
+    color: var(--cream);
+    padding: 12px 28px;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(184,150,90,0.3);
+  }
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 20px;
+    position: relative;
+  }
+  .step:not(:last-child)::after {
+    content: '→';
+    position: absolute;
+    right: -4px;
+    color: var(--gold);
+    font-size: 16px;
+  }
+  .step-num {
+    width: 22px; height: 22px;
+    background: var(--gold);
+    color: var(--ink);
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .step-text { color: #CCC; line-height: 1.3; }
+  .step-text strong { color: var(--cream); display: block; }
+
+  /* ── LAYOUT ── */
+  .layout-main { display: grid; grid-template-columns: 290px 1fr; min-height: calc(100vh - 111px); }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 20px 18px;
+    overflow-y: auto;
+    max-height: calc(100vh - 111px);
+    position: sticky;
+    top: 111px;
+  }
+  .sidebar-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--ink);
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Upload zone */
+  .upload-zone {
+    border: 2px dashed var(--gold);
+    border-radius: 6px;
+    padding: 18px 14px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 18px;
+    background: linear-gradient(135deg, #FBF8F3, #F5EFE4);
+  }
+  .upload-zone:hover { border-color: var(--ink); background: #EDE6DC; }
+  .upload-zone input { display: none; }
+  .upload-icon { font-size: 26px; margin-bottom: 6px; }
+  .upload-label { font-size: 13px; color: var(--muted); }
+  .upload-label strong { color: var(--gold); display: block; font-size: 12px; margin-top: 3px; }
+
+  /* Stats bar */
+  .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 18px; }
+  .stat-card { background: var(--cream); border: 1px solid var(--border); border-radius: 4px; padding: 10px 12px; text-align: center; }
+  .stat-num { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600; color: var(--gold); }
+  .stat-lbl { font-size: 12px; color: var(--muted); margin-top: 1px; }
+
+  /* Filters */
+  .filter-group { margin-bottom: 14px; }
+  .filter-label { font-size: 12px; font-weight: 600; color: var(--ink); margin-bottom: 6px; display: block; }
+  select, input[type="text"] {
+    width: 100%;
+    padding: 9px 10px;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--ink);
+    font-family: 'Jost', sans-serif;
+    font-size: 14px;
+    border-radius: 4px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  select:focus, input[type="text"]:focus { border-color: var(--gold); }
+
+  /* Actions */
+  .action-section { margin-top: 18px; border-top: 1px solid var(--border); padding-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 11px 14px;
+    border: none;
+    font-family: 'Jost', sans-serif;
+    font-size: 13px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+    font-weight: 600;
+    text-align: center;
+  }
+  .btn-gold { background: var(--gold); color: var(--ink); }
+  .btn-gold:hover { background: var(--gold-light); }
+  .btn-outline { background: transparent; color: var(--ink); border: 1.5px solid var(--border); }
+  .btn-outline:hover { border-color: var(--ink); background: var(--cream); }
+  .btn-primary { background: var(--ink); color: var(--cream); }
+  .btn-primary:hover { background: #2D2823; }
+  .btn-danger { background: transparent; color: var(--danger); border: 1.5px solid var(--danger); }
+  .btn-danger:hover { background: var(--danger); color: white; }
+
+  /* ── CONTENT ── */
+  .content { padding: 22px 26px; overflow-y: auto; }
+  .content-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .content-title { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400; }
+  .results-count { font-size: 13px; color: var(--muted); }
+
+  /* Toggle view — con texto legible */
+  .view-toggle { display: flex; gap: 4px; }
+  .view-btn {
+    padding: 7px 14px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    font-size: 13px;
+    border-radius: 4px;
+    transition: all 0.15s;
+    color: var(--muted);
+    font-family: 'Jost', sans-serif;
+    font-weight: 500;
+  }
+  .view-btn.active { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+
+  /* Barra de selección */
+  .select-bar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0; margin-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .select-bar-label { color: var(--muted); font-size: 12px; }
+  .select-bar button {
+    border: none; background: none; cursor: pointer;
+    font-family: 'Jost', sans-serif; font-size: 13px;
+    color: var(--gold); padding: 0; font-weight: 600;
+    text-decoration: underline;
+  }
+  .select-bar button:hover { color: var(--ink); }
+  .sep { color: var(--border); }
+  #selected-count { color: var(--muted); margin-left: auto; font-size: 13px; }
+
+  /* Pills de filtro de stock */
+  .pills { display: flex; gap: 6px; margin-bottom: 14px; }
+  .pill {
+    padding: 6px 14px; border-radius: 20px; font-size: 13px;
+    cursor: pointer; border: 1.5px solid var(--border); background: transparent;
+    transition: all 0.15s; font-family: 'Jost', sans-serif; font-weight: 500;
+  }
+  .pill.active { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+
+  /* ── PRODUCT GRID ── */
+  .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; }
+  .product-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 14px;
+    transition: all 0.2s;
+    cursor: pointer;
+    position: relative;
+  }
+  .product-card:hover { border-color: var(--gold); box-shadow: 0 4px 18px rgba(184,150,90,0.14); }
+  .product-card.selected { border-color: var(--gold); background: #FBF6EE; }
+  .product-card.selected::after {
+    content: '✓ Marcada';
+    position: absolute;
+    top: 8px; right: 10px;
+    color: var(--gold);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .card-name { font-family: 'Cormorant Garamond', serif; font-size: 16px; font-weight: 600; line-height: 1.3; margin-bottom: 7px; }
+  .card-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+  .tag { font-size: 12px; padding: 3px 9px; border-radius: 20px; font-weight: 500; background: #EEE9E2; color: #5A5045; }
+  .card-barcode { font-family: monospace; font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+  .card-price { font-family: 'Cormorant Garamond', serif; font-size: 17px; color: var(--gold); font-weight: 600; }
+  .card-stock { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; }
+  .stock-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .stock-ok { background: var(--success); }
+  .stock-zero { background: #CCC; }
+  .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+
+  /* Cantidad + botón agregar */
+  .qty-row { display: flex; align-items: center; gap: 6px; margin-top: 10px; }
+  .qty-btn {
+    width: 26px; height: 26px;
+    background: var(--cream); border: 1.5px solid var(--border);
+    border-radius: 4px; cursor: pointer; font-size: 16px; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s; padding: 0; flex-shrink: 0;
+  }
+  .qty-btn:hover { background: var(--gold); border-color: var(--gold); color: white; }
+  .qty-input {
+    width: 42px; text-align: center; border: 1.5px solid var(--border);
+    padding: 3px 4px; font-family: 'Jost', sans-serif; font-size: 14px;
+    border-radius: 4px;
+  }
+  .btn-add-cart {
+    flex: 1; padding: 5px 8px;
+    background: var(--gold); border: none; color: var(--ink);
+    font-family: 'Jost', sans-serif; font-size: 12px; font-weight: 700;
+    cursor: pointer; border-radius: 4px;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+  }
+  .btn-add-cart:hover { background: var(--ink); color: var(--cream); }
+
+  /* ── LIST VIEW ── */
+  .product-list { display: flex; flex-direction: column; gap: 6px; }
+  .product-row {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    padding: 11px 14px;
+    display: grid;
+    grid-template-columns: 24px 1fr 80px 70px 60px 80px 100px;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .product-row:hover { border-color: var(--gold); }
+  .product-row.selected { background: #FBF6EE; border-color: var(--gold); }
+  .row-check { width: 18px; height: 18px; border: 2px solid var(--border); border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 11px; transition: all 0.15s; flex-shrink: 0; }
+  .product-row.selected .row-check { background: var(--gold); border-color: var(--gold); color: white; }
+  .row-name { font-size: 14px; font-weight: 500; }
+  .row-color, .row-talla { font-size: 13px; color: var(--muted); }
+  .row-barcode { font-family: monospace; font-size: 12px; color: var(--muted); }
+  .row-price { font-family: 'Cormorant Garamond', serif; font-size: 16px; color: var(--gold); font-weight: 600; }
+  .row-stock { font-size: 13px; }
+  .list-header {
+    display: grid;
+    grid-template-columns: 24px 1fr 80px 70px 60px 80px 100px;
+    gap: 12px;
+    padding: 8px 14px;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 4px;
+  }
+
+  /* ── PANEL DE LISTA DE IMPRESIÓN ── */
+  .cart-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 400px;
+    background: var(--surface);
+    box-shadow: -8px 0 40px rgba(0,0,0,0.18);
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .cart-panel.open { transform: translateX(0); }
+  .cart-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+    z-index: 199; display: none;
+  }
+  .cart-overlay.open { display: block; }
+
+  .cart-header {
+    flex: 0 0 auto;
+    background: var(--ink);
+    color: var(--cream);
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .cart-title { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 300; letter-spacing: 2px; }
+  .cart-subtitle { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .close-btn { background: none; border: none; color: var(--cream); font-size: 22px; cursor: pointer; padding: 4px; line-height: 1; }
+
+  .cart-items {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 8px 16px;
+    background: var(--surface);
+  }
+  .cart-empty { text-align: center; padding: 50px 20px; color: var(--muted); }
+  .cart-empty-icon { font-size: 44px; margin-bottom: 14px; opacity: 0.35; }
+  .cart-empty-text { font-size: 14px; margin-bottom: 6px; }
+  .cart-empty-hint { font-size: 12px; color: var(--muted); opacity: 0.7; }
+  .cart-item {
+    display: grid; grid-template-columns: 1fr auto;
+    gap: 10px; padding: 13px 0;
+    border-bottom: 1px solid var(--border);
+    align-items: start;
+  }
+  .ci-name { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+  .ci-meta { font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+  .ci-barcode { font-family: monospace; font-size: 11px; color: var(--muted); }
+  .ci-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+  .ci-qty { display: flex; align-items: center; gap: 6px; }
+  .ci-qty-btn { width: 26px; height: 26px; background: var(--cream); border: 1.5px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+  .ci-qty-btn:hover { background: var(--ink); color: white; border-color: var(--ink); }
+  .ci-qty-num { font-size: 15px; font-weight: 700; min-width: 22px; text-align: center; }
+  .ci-qty-label { font-size: 11px; color: var(--muted); text-align: right; }
+  .ci-remove { font-size: 12px; color: var(--muted); cursor: pointer; border: none; background: none; font-family: 'Jost', sans-serif; transition: color 0.15s; padding: 0; }
+  .ci-remove:hover { color: var(--danger); }
+
+  .cart-footer {
+    flex: 0 0 auto;
+    border-top: 2px solid var(--border);
+    background: var(--cream);
+  }
+  .cart-total-bar { padding: 14px 16px; }
+  .total-line { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; color: var(--muted); }
+  .total-line.main { font-size: 15px; font-weight: 700; color: var(--ink); border-top: 1px solid var(--border); padding-top: 10px; margin-top: 6px; }
+  .total-line.main span:last-child { color: var(--gold); }
+  .cart-actions { padding: 14px 16px 16px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px; background: var(--surface); }
+  .print-hint { font-size: 11px; color: var(--muted); text-align: center; margin-top: 2px; }
+  .print-info {
+    background: linear-gradient(135deg, #FBF6EE, #F5EFE4);
+    border: 1px solid var(--gold);
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--ink);
+  }
+  .print-info strong { color: var(--gold); display: block; margin-bottom: 4px; font-size: 12px; }
+  .print-info b { color: var(--ink); background: rgba(184,150,90,0.18); padding: 1px 6px; border-radius: 3px; }
+
+  /* ── PRINT ── */
+  @media print {
+    /* Reset total para impresión */
+    html, body {
+      margin: 0 !important;
+      padding: 0 !important;
+      background: white !important;
+      width: 100% !important;
+      height: auto !important;
+    }
+    body > *:not(#print-area) { display: none !important; }
+    #print-area { display: block !important; width: 100%; }
+    .label-sheet { display: block !important; }
+
+    /* Cada etiqueta llena 100% del papel que la impresora asigne — sin tamaños fijos */
+    .label {
+      width: 100% !important;
+      height: 100vh !important;
+      max-height: 100vh;
+      padding: 2% 4% !important;
+      page-break-after: always;
+      page-break-inside: avoid;
+      break-after: page;
+      break-inside: avoid;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      overflow: hidden !important;
+      box-sizing: border-box !important;
+    }
+    .label:last-child { page-break-after: auto; break-after: auto; }
+
+    /* Sin margen de @page para que la impresora use su tamaño físico */
+    @page { margin: 0; }
+  }
+  #print-area { display: none; }
+  .label-sheet { display: flex; flex-wrap: wrap; gap: 0; }
+  .label {
+    width: 62mm; height: 29mm;
+    padding: 1.2mm 2mm 1mm;
+    border: none;
+    page-break-after: always;
+    page-break-inside: avoid;
+    font-family: 'Jost', sans-serif;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    overflow: hidden; box-sizing: border-box;
+  }
+  /* Tamaños de texto controlados por variables CSS — el editor las modifica */
+  .label-brand    { font-size: var(--lbl-brand-size, 5.5pt); letter-spacing: 3px; text-transform: uppercase; color: #999; margin-bottom: 0.3mm; line-height: 1; }
+  .label-name     { font-size: var(--lbl-name-size, 7pt);    font-weight: 700; text-align: center; margin-bottom: 0.2mm; line-height: 1.1; max-width: 58mm; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .label-attrs    { font-size: var(--lbl-attrs-size, 6pt);   color: #444; text-align: center; margin-bottom: 0.5mm; line-height: 1; }
+  .label-barcode-svg { width: 56mm; height: 11mm; display: block; }
+  .label-code-text   { font-family: monospace; font-size: var(--lbl-code-size, 5.5pt); letter-spacing: 0.5px; margin-top: 0.2mm; color: #333; line-height: 1; }
+  .label-price       { font-size: var(--lbl-price-size, 8pt); font-weight: 800; color: #000; margin-top: 0.3mm; line-height: 1; }
+
+  /* En impresión, los textos escalan proporcionalmente al alto del papel.
+     Esto hace que las etiquetas se vean bien sin importar qué tamaño elija el usuario en el plugin. */
+  @media print {
+    .label-brand    { font-size: 7vh !important; margin-bottom: 1vh !important; }
+    .label-name     { font-size: 14vh !important; max-width: 92% !important; margin-bottom: 1vh !important; }
+    .label-attrs    { font-size: 9vh !important; margin-bottom: 2vh !important; }
+    .label-barcode-svg { width: 92% !important; height: 30vh !important; }
+    .label-code-text   { font-size: 7vh !important; margin-top: 1vh !important; }
+    .label-price       { font-size: 13vh !important; margin-top: 1vh !important; }
+  }
+
+  /* ══════════════════════════════════════════
+     EDITOR DE DISEÑO DE ETIQUETA
+  ══════════════════════════════════════════ */
+  .design-btn {
+    background: transparent;
+    color: var(--cream);
+    border: 1.5px solid var(--gold);
+    font-weight: 600;
+    font-size: 13px;
+    padding: 8px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Jost', sans-serif;
+    margin-right: 10px;
+    white-space: nowrap;
+  }
+  .design-btn:hover { background: var(--gold); color: var(--ink); }
+
+  .header-actions { display: flex; align-items: center; gap: 0; }
+
+  /* Modal de diseño */
+  .design-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 400;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .design-overlay.open { display: flex; }
+
+  .design-modal {
+    background: var(--surface);
+    border-radius: 8px;
+    width: 100%;
+    max-width: 880px;
+    max-height: 90vh;
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+
+  .design-preview-area {
+    background: linear-gradient(135deg, #E8E0D2, #DCD0BD);
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto;
+  }
+  .design-preview-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    color: var(--ink);
+    margin-bottom: 8px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .design-preview-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 24px;
+    letter-spacing: 1px;
+  }
+  .design-preview-label {
+    /* Etiqueta a tamaño real 62x29mm */
+    background: white;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    border-radius: 2px;
+  }
+  .design-preview-label .label {
+    border: 1px dashed #DDD;
+  }
+
+  .design-controls {
+    background: var(--cream);
+    padding: 22px;
+    overflow-y: auto;
+    border-left: 1px solid var(--border);
+  }
+  .design-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .design-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+  .design-close {
+    background: none; border: none; cursor: pointer;
+    font-size: 22px; color: var(--muted); padding: 4px; line-height: 1;
+  }
+  .design-close:hover { color: var(--ink); }
+
+  .design-section { margin-bottom: 18px; }
+  .design-section-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  /* Toggle switch */
+  .design-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .design-toggle:hover { border-color: var(--gold); }
+  .design-toggle-label { font-size: 13px; font-weight: 500; }
+  .design-toggle-switch {
+    width: 38px; height: 22px;
+    background: #CCC;
+    border-radius: 20px;
+    position: relative;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .design-toggle-switch::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 18px; height: 18px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .design-toggle.active .design-toggle-switch { background: var(--gold); }
+  .design-toggle.active .design-toggle-switch::after { transform: translateX(16px); }
+
+  /* Slider de tamaño */
+  .design-slider-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    margin-bottom: 6px;
+  }
+  .design-slider-label { font-size: 13px; font-weight: 500; }
+  .design-slider-value { font-size: 12px; color: var(--gold); font-weight: 700; min-width: 38px; text-align: right; }
+  .design-slider {
+    grid-column: 1 / -1;
+    width: 100%;
+    height: 4px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--border);
+    border-radius: 4px;
+    margin-top: 8px;
+    cursor: pointer;
+    outline: none;
+  }
+  .design-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px; height: 18px;
+    background: var(--gold);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+  .design-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+  .design-slider::-moz-range-thumb {
+    width: 18px; height: 18px;
+    background: var(--gold);
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+  }
+
+  /* Orden de elementos */
+  .design-order { display: flex; flex-direction: column; gap: 4px; }
+  .design-order-item {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    gap: 8px;
+    align-items: center;
+    padding: 8px 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 13px;
+  }
+  .design-order-num {
+    width: 22px; height: 22px;
+    background: var(--cream);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: var(--muted);
+  }
+  .design-order-label { font-weight: 500; }
+  .design-order-btn {
+    width: 26px; height: 26px;
+    border: 1px solid var(--border);
+    background: var(--cream);
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .design-order-btn:hover:not(:disabled) { background: var(--gold); color: white; border-color: var(--gold); }
+  .design-order-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  .design-actions {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    display: flex; flex-direction: column; gap: 8px;
+  }
+
+  @media (max-width: 800px) {
+    .design-modal { grid-template-columns: 1fr; max-height: 92vh; }
+    .design-preview-area { padding: 20px 16px; }
+    .design-controls { border-left: none; border-top: 1px solid var(--border); }
+    .design-btn { font-size: 12px; padding: 7px 10px; margin-right: 6px; }
+  }
+  @media (max-width: 500px) {
+    .design-btn { padding: 7px 8px; }
+    .design-btn span.lbl-text { display: none; }
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+    background: var(--ink); color: var(--cream);
+    padding: 13px 26px; border-radius: 6px;
+    font-size: 14px;
+    z-index: 300; pointer-events: none;
+    opacity: 0; transition: opacity 0.3s;
+    white-space: nowrap;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+  .toast.show { opacity: 1; }
+
+  .no-results { padding: 50px; text-align: center; color: var(--muted); font-size: 14px; }
+
+  /* ══════════════════════════════════════════
+     RESPONSIVE — MÓVIL  (≤ 700px)
+  ══════════════════════════════════════════ */
+  @media (max-width: 700px) {
+
+    /* Header compacto */
+    header { padding: 12px 16px; }
+    .brand { font-size: 20px; letter-spacing: 4px; }
+    .header-sub { display: none; }
+    .print-list-btn { font-size: 13px; padding: 9px 14px; gap: 6px; }
+
+    /* Guía de pasos: apilada verticalmente */
+    .steps-banner {
+      flex-direction: column;
+      gap: 8px;
+      padding: 12px 16px;
+    }
+    .step { padding: 4px 0; }
+    .step:not(:last-child)::after { display: none; }
+
+    /* Layout: una sola columna, sidebar encima */
+    .layout-main { grid-template-columns: 1fr; }
+
+    /* Sidebar: no sticky, scroll natural */
+    .sidebar {
+      max-height: none;
+      position: static;
+      border-right: none;
+      border-bottom: 2px solid var(--border);
+      padding: 16px;
+    }
+
+    /* Filtros en 2 columnas */
+    .filter-group { margin-bottom: 10px; }
+    .pills { flex-wrap: wrap; }
+
+    /* Contenido */
+    .content { padding: 14px 12px; }
+    .content-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .view-toggle { align-self: flex-end; }
+
+    /* Barra seleccionar */
+    .select-bar { flex-wrap: wrap; gap: 6px; font-size: 12px; }
+    .select-bar-label { width: 100%; }
+
+    /* Grid de tarjetas: 1 columna en móvil chico, 2 en tablet */
+    .product-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+
+    /* Lista: solo columnas esenciales */
+    .list-header { display: none; }
+    .product-row {
+      grid-template-columns: 20px 1fr auto;
+      gap: 8px;
+    }
+    .product-row > .row-color,
+    .product-row > .row-talla,
+    .product-row > .row-barcode,
+    .product-row > .row-price { display: none; }
+
+    /* Panel de lista: ancho completo en móvil */
+    .cart-panel { width: 100%; right: 0; }
+
+    /* Tarjeta: qty-row más compacto */
+    .qty-row { gap: 4px; }
+    .btn-add-cart { font-size: 11px; padding: 5px 6px; }
+
+    /* Steps banner más compacto */
+    .step-text { font-size: 12px; }
+    .step-num { width: 20px; height: 20px; font-size: 11px; }
+  }
+
+  /* TABLET (701px – 900px): sidebar más estrecho */
+  @media (min-width: 701px) and (max-width: 900px) {
+    .layout-main { grid-template-columns: 240px 1fr; }
+    .sidebar { padding: 16px 14px; }
+    .cart-panel { width: 340px; }
+    .product-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+  }
+
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="brand">D<span>a</span>liza</div>
+    <div class="header-sub">Imprimir Etiquetas</div>
+  </div>
+  <div class="header-actions">
+    <button class="design-btn" onclick="openDesignEditor()" title="Personalizar diseño de etiqueta">
+      🎨 <span class="lbl-text">Diseño etiqueta</span>
+    </button>
+    <button class="print-list-btn" onclick="toggleCart()">
+      🖨️ Ver lista de impresión
+      <span class="badge" id="cart-count">0</span>
+    </button>
+  </div>
+</header>
+
+<!-- Guía de 3 pasos siempre visible -->
+<div class="steps-banner">
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-text"><strong>Busca la prenda</strong>Usa los filtros o busca por nombre</div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-text"><strong>Agrégala a la lista</strong>Elige la cantidad y presiona Agregar</div>
+  </div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-text"><strong>Imprime</strong>Abre la lista y presiona Imprimir</div>
+  </div>
+</div>
+
+<div class="layout-main">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-title">🔍 Buscar prendas</div>
+
+    <!-- Upload -->
+    <div class="upload-zone" onclick="document.getElementById('file-input').click()">
+      <input type="file" id="file-input" accept=".xlsx,.xls,.csv" onchange="loadFile(event)">
+      <div class="upload-icon">📂</div>
+      <div class="upload-label">Actualizar stock desde Excel
+        <strong>Clic aquí para elegir el archivo</strong>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-num" id="stat-total">0</div>
+        <div class="stat-lbl">Total prendas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-stock">0</div>
+        <div class="stat-lbl">Con stock</div>
+      </div>
+    </div>
+
+    <!-- Stock filter - sin label redundante -->
+    <div class="filter-group">
+      <div class="pills">
+        <button class="pill" onclick="setStockFilter('all', this)">Todas</button>
+        <button class="pill active" onclick="setStockFilter('instock', this)">Con stock</button>
+        <button class="pill" onclick="setStockFilter('zero', this)">Sin stock</button>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="filter-group">
+      <label class="filter-label" for="search-input">Nombre de la prenda</label>
+      <input type="text" id="search-input" placeholder="Ej: Blusa, Pantalón Lino..." oninput="renderProducts()">
+    </div>
+
+    <!-- Categoria filter -->
+    <div class="filter-group">
+      <label class="filter-label" for="cat-filter">Tipo de prenda</label>
+      <select id="cat-filter" onchange="renderProducts()">
+        <option value="">— Todas las prendas —</option>
+      </select>
+    </div>
+
+    <!-- Color filter -->
+    <div class="filter-group">
+      <label class="filter-label" for="color-filter">Color</label>
+      <select id="color-filter" onchange="renderProducts()">
+        <option value="">— Todos los colores —</option>
+      </select>
+    </div>
+
+    <!-- Talla filter -->
+    <div class="filter-group">
+      <label class="filter-label" for="talla-filter">Talla</label>
+      <select id="talla-filter" onchange="renderProducts()">
+        <option value="">— Todas las tallas —</option>
+      </select>
+    </div>
+
+    <!-- Acción principal -->
+    <div class="action-section">
+      <button class="btn btn-gold" onclick="addFilteredToCart()">🏷️ Agregar todas las visibles a la lista</button>
+      <button class="btn btn-outline" onclick="clearFilters()">↺ Limpiar filtros</button>
+    </div>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+    <div class="content-header">
+      <div>
+        <div class="content-title" id="content-title">Inventario DALIZA</div>
+        <div class="results-count" id="results-count">Cargando...</div>
+      </div>
+      <div class="view-toggle">
+        <button class="view-btn active" onclick="setView('grid', this)">Tarjetas</button>
+        <button class="view-btn" onclick="setView('list', this)">Lista</button>
+      </div>
+    </div>
+
+    <!-- Barra de marcar/desmarcar -->
+    <div class="select-bar">
+      <span class="select-bar-label">Marcar para agregar en grupo:</span>
+      <button onclick="selectAllVisible()">Marcar todas</button>
+      <span class="sep">|</span>
+      <button onclick="deselectAll()">Desmarcar</button>
+      <span id="selected-count"></span>
+    </div>
+
+    <div id="product-container"></div>
+  </main>
+</div>
+
+<!-- PANEL DE LISTA DE IMPRESIÓN -->
+<div class="cart-overlay" id="cart-overlay" onclick="toggleCart()"></div>
+<div class="cart-panel" id="cart-panel">
+  <div class="cart-header">
+    <div>
+      <div class="cart-title">Lista de Impresión</div>
+      <div class="cart-subtitle">Revisa y ajusta las cantidades antes de imprimir</div>
+    </div>
+    <button class="close-btn" onclick="toggleCart()" title="Cerrar">✕</button>
+  </div>
+  <div class="cart-items" id="cart-items">
+    <div class="cart-empty">
+      <div class="cart-empty-icon">🏷️</div>
+      <div class="cart-empty-text">Tu lista está vacía</div>
+      <div class="cart-empty-hint">Busca una prenda y presiona "Agregar"</div>
+    </div>
+  </div>
+  <div class="cart-footer">
+    <div class="cart-total-bar">
+      <div class="total-line"><span>Tipos de prenda</span><span id="total-skus">0</span></div>
+      <div class="total-line main"><span>Total etiquetas a imprimir</span><span id="total-labels">0</span></div>
+    </div>
+    <div class="cart-actions">
+      <button class="btn btn-primary" onclick="printLabels()">🖨️ Imprimir etiquetas</button>
+      <div class="print-info">
+        <strong>📌 Importante para tu rollo continuo:</strong><br>
+        <span>1. Elige <b>"62mm × 29mm"</b> como tamaño de papel<br>
+        2. Si da error, prueba <b>"62mm × 1m negro/rojo"</b><br>
+        3. Cada etiqueta llena toda la página automáticamente</span>
+      </div>
+      <button class="btn btn-gold" onclick="exportBarcodesExcel()">📥 Descargar Excel de códigos</button>
+      <button class="btn btn-danger" onclick="clearCartConfirm()">🗑️ Vaciar lista</button>
+    </div>
+  </div>
+</div>
+
+<!-- PRINT AREA -->
+<div id="print-area">
+  <div class="label-sheet" id="label-sheet"></div>
+</div>
+
+<!-- EDITOR DE DISEÑO DE ETIQUETA -->
+<div class="design-overlay" id="design-overlay">
+  <div class="design-modal">
+    <!-- Vista previa en vivo -->
+    <div class="design-preview-area">
+      <div class="design-preview-title">Vista previa</div>
+      <div class="design-preview-sub">Tamaño real 62 × 29 mm</div>
+      <div class="design-preview-label" id="design-preview-label"></div>
+    </div>
+
+    <!-- Controles -->
+    <div class="design-controls">
+      <div class="design-header">
+        <div class="design-title">🎨 Diseño de etiqueta</div>
+        <button class="design-close" onclick="closeDesignEditor()" title="Cerrar">✕</button>
+      </div>
+
+      <!-- Mostrar / ocultar elementos -->
+      <div class="design-section">
+        <div class="design-section-title">¿Qué mostrar?</div>
+        <div id="design-toggles"></div>
+      </div>
+
+      <!-- Tamaños de letra -->
+      <div class="design-section">
+        <div class="design-section-title">Tamaños de letra</div>
+        <div id="design-sliders"></div>
+      </div>
+
+      <!-- Orden de los elementos -->
+      <div class="design-section">
+        <div class="design-section-title">Orden de los elementos</div>
+        <div class="design-order" id="design-order"></div>
+      </div>
+
+      <div class="design-actions">
+        <button class="btn btn-primary" onclick="closeDesignEditor()">✓ Listo</button>
+        <button class="btn btn-outline" onclick="resetDesign()">↺ Restablecer original</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────────────────────
+let PRODUCTS = [{"nombre":"Blusa Manga 0 - Negro - M","base":"Blusa Manga 0","color":"Negro","talla":"M","barcode":"BL001MNEGRO","stock":0,"precio":49.9},{"nombre":"Blusa Manga 0 - Beige - M","base":"Blusa Manga 0","color":"Beige","talla":"M","barcode":"BL001MBEIGE","stock":1,"precio":49.9},{"nombre":"Blusa Manga 0 - Perla - M","base":"Blusa Manga 0","color":"Perla","talla":"M","barcode":"BL001MPERLA","stock":1,"precio":49.9},{"nombre":"Blusa Murciélago - Negro - M","base":"Blusa Murciélago","color":"Negro","talla":"M","barcode":"BL002MNEGRO","stock":0,"precio":49.9},{"nombre":"Blusa Murciélago - Beige - M","base":"Blusa Murciélago","color":"Beige","talla":"M","barcode":"BL002MBEIGE","stock":1,"precio":49.9},{"nombre":"Blusa Murciélago - Marrón - M","base":"Blusa Murciélago","color":"Marrón","talla":"M","barcode":"BL002MMARRON","stock":0,"precio":49.9},{"nombre":"Blusa Media Camisa - Negro - S","base":"Blusa Media Camisa","color":"Negro","talla":"S","barcode":"BL003SNEGRO","stock":1,"precio":69.9},{"nombre":"Blusa Media Camisa - Beige - M","base":"Blusa Media Camisa","color":"Beige","talla":"M","barcode":"BL003MBEIGE","stock":1,"precio":69.9},{"nombre":"Blusa Media Camisa - Marrón - S","base":"Blusa Media Camisa","color":"Marrón","talla":"S","barcode":"BL003SMARRON","stock":1,"precio":69.9},{"nombre":"Pantalón Catania Botón - Gris - L","base":"Pantalón Catania Botón","color":"Gris","talla":"L","barcode":"PT001LGRIS","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Botón - Azul Marino - S","base":"Pantalón Catania Botón","color":"Azul Marino","talla":"S","barcode":"PT001SAZULMARINO","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Botón - Marrón - L","base":"Pantalón Catania Botón","color":"Marrón","talla":"L","barcode":"PT001LMARRON","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Botón - Plata - S","base":"Pantalón Catania Botón","color":"Plata","talla":"S","barcode":"PT001SPLATA","stock":1,"precio":89.9},{"nombre":"Pantalón Catania Botón - Maíz - L","base":"Pantalón Catania Botón","color":"Maíz","talla":"L","barcode":"PT001LMAIZ","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Botón - Maíz - S","base":"Pantalón Catania Botón","color":"Maíz","talla":"S","barcode":"PT001SMAIZ","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Botón - Beige - S","base":"Pantalón Catania Botón","color":"Beige","talla":"S","barcode":"PT001SBEIGE","stock":1,"precio":89.9},{"nombre":"Pantalón Catania Botón - Azul Marino - L","base":"Pantalón Catania Botón","color":"Azul Marino","talla":"L","barcode":"PT001LAZULMARINO","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Botón - Beige - M","base":"Pantalón Catania Botón","color":"Beige","talla":"M","barcode":"PT001MBEIGE","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Botón - Arena - M","base":"Pantalón Catania Botón","color":"Arena","talla":"M","barcode":"PT001MARENA","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Botón - Marrón - M","base":"Pantalón Catania Botón","color":"Marrón","talla":"M","barcode":"PT001MMARRON","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Botón - Arena - S","base":"Pantalón Catania Botón","color":"Arena","talla":"S","barcode":"PT001SARENA","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Botón - Gris - S","base":"Pantalón Catania Botón","color":"Gris","talla":"S","barcode":"PT001SGRIS","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Botón - Plata - L","base":"Pantalón Catania Botón","color":"Plata","talla":"L","barcode":"PT001LPLATA","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Botón - Beige - L","base":"Pantalón Catania Botón","color":"Beige","talla":"L","barcode":"PT001LBEIGE","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Botón - Arena - L","base":"Pantalón Catania Botón","color":"Arena","talla":"L","barcode":"PT001LARENA","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Botón - Azul Marino - M","base":"Pantalón Catania Botón","color":"Azul Marino","talla":"M","barcode":"PT001MAZULMARINO","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Botón - Plata - M","base":"Pantalón Catania Botón","color":"Plata","talla":"M","barcode":"PT001MPLATA","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Botón - Marrón - S","base":"Pantalón Catania Botón","color":"Marrón","talla":"S","barcode":"PT001SMARRON","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Botón - Maíz - M","base":"Pantalón Catania Botón","color":"Maíz","talla":"M","barcode":"PT001MMAIZ","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Botón - Gris - M","base":"Pantalón Catania Botón","color":"Gris","talla":"M","barcode":"PT001MGRIS","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Botón - Perla - S","base":"Pantalón Catania Botón","color":"Perla","talla":"S","barcode":"PT001SPERLA","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Botón - Perla - L","base":"Pantalón Catania Botón","color":"Perla","talla":"L","barcode":"PT001LPERLA","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Botón - Negro - L","base":"Pantalón Catania Botón","color":"Negro","talla":"L","barcode":"PT001LNEGRO","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Botón - Negro - S","base":"Pantalón Catania Botón","color":"Negro","talla":"S","barcode":"PT001SNEGRO","stock":1,"precio":89.9},{"nombre":"Pantalón Catania Botón - Negro - M","base":"Pantalón Catania Botón","color":"Negro","talla":"M","barcode":"PT001MNEGRO","stock":1,"precio":89.9},{"nombre":"Pantalón Catania Botón - Perla - M","base":"Pantalón Catania Botón","color":"Perla","talla":"M","barcode":"PT001MPERLA","stock":0,"precio":89.9},{"nombre":"Chaleco Lino Cuello - Plata - M","base":"Chaleco Lino Cuello","color":"Plata","talla":"M","barcode":"CH004MPLATA","stock":0,"precio":69.9},{"nombre":"Chaleco Lino Cuello - Maíz - M","base":"Chaleco Lino Cuello","color":"Maíz","talla":"M","barcode":"CH004MMAIZ","stock":0,"precio":69.9},{"nombre":"Chaleco Lino Cuello - Marrón - M","base":"Chaleco Lino Cuello","color":"Marrón","talla":"M","barcode":"CH004MMARRON","stock":0,"precio":69.9},{"nombre":"Chaleco Lino Cuello - Arena - M","base":"Chaleco Lino Cuello","color":"Arena","talla":"M","barcode":"CH004MARENA","stock":0,"precio":69.9},{"nombre":"Chaleco Lino Cuello - Azul Marino - M","base":"Chaleco Lino Cuello","color":"Azul Marino","talla":"M","barcode":"CH004MAZULMARINO","stock":1,"precio":69.9},{"nombre":"Chaleco Lino Cuello - Beige - M","base":"Chaleco Lino Cuello","color":"Beige","talla":"M","barcode":"CH004MBEIGE","stock":0,"precio":69.9},{"nombre":"Chaleco Lino Cuello - Gris - M","base":"Chaleco Lino Cuello","color":"Gris","talla":"M","barcode":"CH004MGRIS","stock":0,"precio":69.9},{"nombre":"Chaleco Lino Cuello - Negro - M","base":"Chaleco Lino Cuello","color":"Negro","talla":"M","barcode":"CH004MNEGRO","stock":1,"precio":69.9},{"nombre":"Chaleco Lino Cuello - Perla - M","base":"Chaleco Lino Cuello","color":"Perla","talla":"M","barcode":"CH004MPERLA","stock":0,"precio":69.9},{"nombre":"Pantalón Lino - Marrón - S","base":"Pantalón Lino","color":"Marrón","talla":"S","barcode":"PT003SMARRON","stock":2,"precio":88},{"nombre":"Pantalón Lino - Plata - M","base":"Pantalón Lino","color":"Plata","talla":"M","barcode":"PT003MPLATA","stock":1,"precio":88},{"nombre":"Pantalón Lino - Maíz - L","base":"Pantalón Lino","color":"Maíz","talla":"L","barcode":"PT003LMAIZ","stock":0,"precio":88},{"nombre":"Pantalón Lino - Marrón - M","base":"Pantalón Lino","color":"Marrón","talla":"M","barcode":"PT003MMARRON","stock":0,"precio":88},{"nombre":"Pantalón Lino - Maíz - M","base":"Pantalón Lino","color":"Maíz","talla":"M","barcode":"PT003MMAIZ","stock":0,"precio":88},{"nombre":"Pantalón Lino - Plata - S","base":"Pantalón Lino","color":"Plata","talla":"S","barcode":"PT003SPLATA","stock":2,"precio":88},{"nombre":"Pantalón Lino - Marrón - L","base":"Pantalón Lino","color":"Marrón","talla":"L","barcode":"PT003LMARRON","stock":0,"precio":88},{"nombre":"Pantalón Lino - Plata - L","base":"Pantalón Lino","color":"Plata","talla":"L","barcode":"PT003LPLATA","stock":0,"precio":88},{"nombre":"Pantalón Lino - Maíz - S","base":"Pantalón Lino","color":"Maíz","talla":"S","barcode":"PT003SMAIZ","stock":1,"precio":88},{"nombre":"Pantalón Lino - Beige - M","base":"Pantalón Lino","color":"Beige","talla":"M","barcode":"PT003MBEIGE","stock":1,"precio":88},{"nombre":"Pantalón Lino - Negro - L","base":"Pantalón Lino","color":"Negro","talla":"L","barcode":"PT003LNEGRO","stock":2,"precio":88},{"nombre":"Pantalón Lino - Azul Marino - S","base":"Pantalón Lino","color":"Azul Marino","talla":"S","barcode":"PT003SAZULMARINO","stock":1,"precio":88},{"nombre":"Pantalón Lino - Azul Marino - L","base":"Pantalón Lino","color":"Azul Marino","talla":"L","barcode":"PT003LAZULMARINO","stock":1,"precio":88},{"nombre":"Pantalón Lino - Arena - S","base":"Pantalón Lino","color":"Arena","talla":"S","barcode":"PT003SARENA","stock":0,"precio":88},{"nombre":"Pantalón Lino - Negro - S","base":"Pantalón Lino","color":"Negro","talla":"S","barcode":"PT003SNEGRO","stock":3,"precio":88},{"nombre":"Pantalón Lino - Gris - M","base":"Pantalón Lino","color":"Gris","talla":"M","barcode":"PT003MGRIS","stock":0,"precio":88},{"nombre":"Pantalón Lino - Perla - S","base":"Pantalón Lino","color":"Perla","talla":"S","barcode":"PT003SPERLA","stock":1,"precio":88},{"nombre":"Pantalón Lino - Perla - L","base":"Pantalón Lino","color":"Perla","talla":"L","barcode":"PT003LPERLA","stock":0,"precio":88},{"nombre":"Pantalón Lino - Azul Marino - M","base":"Pantalón Lino","color":"Azul Marino","talla":"M","barcode":"PT003MAZULMARINO","stock":1,"precio":88},{"nombre":"Pantalón Lino - Beige - S","base":"Pantalón Lino","color":"Beige","talla":"S","barcode":"PT003SBEIGE","stock":3,"precio":88},{"nombre":"Pantalón Lino - Beige - L","base":"Pantalón Lino","color":"Beige","talla":"L","barcode":"PT003LBEIGE","stock":2,"precio":88},{"nombre":"Pantalón Lino - Arena - M","base":"Pantalón Lino","color":"Arena","talla":"M","barcode":"PT003MARENA","stock":1,"precio":88},{"nombre":"Pantalón Lino - Perla - M","base":"Pantalón Lino","color":"Perla","talla":"M","barcode":"PT003MPERLA","stock":2,"precio":88},{"nombre":"Pantalón Lino - Arena - L","base":"Pantalón Lino","color":"Arena","talla":"L","barcode":"PT003LARENA","stock":0,"precio":88},{"nombre":"Pantalón Lino - Gris - S","base":"Pantalón Lino","color":"Gris","talla":"S","barcode":"PT003SGRIS","stock":2,"precio":88},{"nombre":"Pantalón Lino - Negro - M","base":"Pantalón Lino","color":"Negro","talla":"M","barcode":"PT003MNEGRO","stock":5,"precio":88},{"nombre":"Pantalón Lino - Gris - L","base":"Pantalón Lino","color":"Gris","talla":"L","barcode":"PT003LGRIS","stock":1,"precio":88},{"nombre":"Chaleco Lino - Marrón - M","base":"Chaleco Lino","color":"Marrón","talla":"M","barcode":"CH003MMARRON","stock":1,"precio":64.9},{"nombre":"Chaleco Lino - Negro - S","base":"Chaleco Lino","color":"Negro","talla":"S","barcode":"CH003SNEGRO","stock":0,"precio":64.9},{"nombre":"Chaleco Lino - Gris - S","base":"Chaleco Lino","color":"Gris","talla":"S","barcode":"CH003SGRIS","stock":1,"precio":64.9},{"nombre":"Chaleco Lino - Beige - S","base":"Chaleco Lino","color":"Beige","talla":"S","barcode":"CH003SBEIGE","stock":0,"precio":64.9},{"nombre":"Chaleco Lino - Celeste - M","base":"Chaleco Lino","color":"Celeste","talla":"M","barcode":"CH003MCELESTE","stock":0,"precio":64.9},{"nombre":"Chaleco Lino - Verde Oliva - M","base":"Chaleco Lino","color":"Verde Oliva","talla":"M","barcode":"CH003MVERDEOLIVA","stock":0,"precio":64.9},{"nombre":"Chaleco Lino - Perla - M","base":"Chaleco Lino","color":"Perla","talla":"M","barcode":"CH003MPERLA","stock":2,"precio":64.9},{"nombre":"Chaleco Lino - Perla - S","base":"Chaleco Lino","color":"Perla","talla":"S","barcode":"CH003SPERLA","stock":3,"precio":64.9},{"nombre":"Chaleco Lino - Celeste - S","base":"Chaleco Lino","color":"Celeste","talla":"S","barcode":"CH003SCELESTE","stock":0,"precio":64.9},{"nombre":"Chaleco Lino - Verde Oliva - S","base":"Chaleco Lino","color":"Verde Oliva","talla":"S","barcode":"CH003SVERDEOLIVA","stock":0,"precio":64.9},{"nombre":"Chaleco Lino - Negro - M","base":"Chaleco Lino","color":"Negro","talla":"M","barcode":"CH003MNEGRO","stock":0,"precio":64.9},{"nombre":"Chaleco Lino - Gris - M","base":"Chaleco Lino","color":"Gris","talla":"M","barcode":"CH003MGRIS","stock":1,"precio":64.9},{"nombre":"Chaleco Lino - Beige - M","base":"Chaleco Lino","color":"Beige","talla":"M","barcode":"CH003MBEIGE","stock":1,"precio":64.9},{"nombre":"Chaleco Lino - Marrón - S","base":"Chaleco Lino","color":"Marrón","talla":"S","barcode":"CH003SMARRON","stock":0,"precio":64.9},{"nombre":"Chaleco Lino - Rosado - S","base":"Chaleco Lino","color":"Rosado","talla":"S","barcode":"CH003SROSADO","stock":0,"precio":64.9},{"nombre":"Chaleco Lino - Rosado - M","base":"Chaleco Lino","color":"Rosado","talla":"M","barcode":"CH003MROSADO","stock":0,"precio":64.9},{"nombre":"Chaleco Lazo - Marrón - M","base":"Chaleco Lazo","color":"Marrón","talla":"M","barcode":"CH002MMARRON","stock":0,"precio":59.9},{"nombre":"Chaleco Lazo - Negro - L","base":"Chaleco Lazo","color":"Negro","talla":"L","barcode":"CH002LNEGRO","stock":0,"precio":59.9},{"nombre":"Chaleco Lazo - Negro - M","base":"Chaleco Lazo","color":"Negro","talla":"M","barcode":"CH002MNEGRO","stock":1,"precio":59.9},{"nombre":"Chaleco Lazo - Negro - S","base":"Chaleco Lazo","color":"Negro","talla":"S","barcode":"CH002SNEGRO","stock":0,"precio":59.9},{"nombre":"Chaleco Lazo - Beige - M","base":"Chaleco Lazo","color":"Beige","talla":"M","barcode":"CH002MBEIGE","stock":1,"precio":59.9},{"nombre":"Chaleco Lazo - Perla - M","base":"Chaleco Lazo","color":"Perla","talla":"M","barcode":"CH002MPERLA","stock":1,"precio":59.9},{"nombre":"Chaleco Lazo - Marrón - L","base":"Chaleco Lazo","color":"Marrón","talla":"L","barcode":"CH002LMARRON","stock":0,"precio":59.9},{"nombre":"Chaleco Lazo - Marrón - S","base":"Chaleco Lazo","color":"Marrón","talla":"S","barcode":"CH002SMARRON","stock":0,"precio":59.9},{"nombre":"Chaleco Lazo - Perla - L","base":"Chaleco Lazo","color":"Perla","talla":"L","barcode":"CH002LPERLA","stock":0,"precio":59.9},{"nombre":"Chaleco Lazo - Beige - S","base":"Chaleco Lazo","color":"Beige","talla":"S","barcode":"CH002SBEIGE","stock":1,"precio":59.9},{"nombre":"Chaleco Lazo - Beige - L","base":"Chaleco Lazo","color":"Beige","talla":"L","barcode":"CH002LBEIGE","stock":0,"precio":59.9},{"nombre":"Chaleco Lazo - Perla - S","base":"Chaleco Lazo","color":"Perla","talla":"S","barcode":"CH002SPERLA","stock":1,"precio":59.9},{"nombre":"Chaleco Catania - Perla - M","base":"Chaleco Catania","color":"Perla","talla":"M","barcode":"CH001MPERLA","stock":0,"precio":59.9},{"nombre":"Chaleco Catania - Negro - S","base":"Chaleco Catania","color":"Negro","talla":"S","barcode":"CH001SNEGRO","stock":0,"precio":59.9},{"nombre":"Chaleco Catania - Azul Marino - M","base":"Chaleco Catania","color":"Azul Marino","talla":"M","barcode":"CH001MAZULMARINO","stock":0,"precio":59.9},{"nombre":"Chaleco Catania - Marrón - M","base":"Chaleco Catania","color":"Marrón","talla":"M","barcode":"CH001MMARRON","stock":0,"precio":59.9},{"nombre":"Chaleco Catania - Azul Marino - L","base":"Chaleco Catania","color":"Azul Marino","talla":"L","barcode":"CH001LAZULMARINO","stock":0,"precio":59.9},{"nombre":"Chaleco Catania - Beige - M","base":"Chaleco Catania","color":"Beige","talla":"M","barcode":"CH001MBEIGE","stock":0,"precio":59.9},{"nombre":"Chaleco Catania - Marrón - S","base":"Chaleco Catania","color":"Marrón","talla":"S","barcode":"CH001SMARRON","stock":0,"precio":59.9},{"nombre":"Chaleco Catania - Beige - S","base":"Chaleco Catania","color":"Beige","talla":"S","barcode":"CH001SBEIGE","stock":0,"precio":59.9},{"nombre":"Chaleco Catania - Marrón - L","base":"Chaleco Catania","color":"Marrón","talla":"L","barcode":"CH001LMARRON","stock":0,"precio":59.9},{"nombre":"Chaleco Catania - Beige - L","base":"Chaleco Catania","color":"Beige","talla":"L","barcode":"CH001LBEIGE","stock":0,"precio":59.9},{"nombre":"Chaleco Catania - Negro - M","base":"Chaleco Catania","color":"Negro","talla":"M","barcode":"CH001MNEGRO","stock":0,"precio":59.9},{"nombre":"Pantalón Catania Correa - Marrón - L","base":"Pantalón Catania Correa","color":"Marrón","talla":"L","barcode":"PT002LMARRON","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Correa - Marrón - M","base":"Pantalón Catania Correa","color":"Marrón","talla":"M","barcode":"PT002MMARRON","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Correa - Marrón - S","base":"Pantalón Catania Correa","color":"Marrón","talla":"S","barcode":"PT002SMARRON","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Correa - Arena - L","base":"Pantalón Catania Correa","color":"Arena","talla":"L","barcode":"PT002LARENA","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Correa - Vino - S","base":"Pantalón Catania Correa","color":"Vino","talla":"S","barcode":"PT002SVINO","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Correa - Perla - S","base":"Pantalón Catania Correa","color":"Perla","talla":"S","barcode":"PT002SPERLA","stock":1,"precio":89.9},{"nombre":"Pantalón Catania Correa - Gris - L","base":"Pantalón Catania Correa","color":"Gris","talla":"L","barcode":"PT002LGRIS","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Correa - Camello - M","base":"Pantalón Catania Correa","color":"Camello","talla":"M","barcode":"PT002MCAMELLO","stock":2,"precio":89.9},{"nombre":"Pantalón Catania Correa - Vino - M","base":"Pantalón Catania Correa","color":"Vino","talla":"M","barcode":"PT002MVINO","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Correa - Camello - S","base":"Pantalón Catania Correa","color":"Camello","talla":"S","barcode":"PT002SCAMELLO","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Correa - Azul Marino - S","base":"Pantalón Catania Correa","color":"Azul Marino","talla":"S","barcode":"PT002SAZULMARINO","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Correa - Azul Marino - M","base":"Pantalón Catania Correa","color":"Azul Marino","talla":"M","barcode":"PT002MAZULMARINO","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Correa - Negro - L","base":"Pantalón Catania Correa","color":"Negro","talla":"L","barcode":"PT002LNEGRO","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Correa - Negro - S","base":"Pantalón Catania Correa","color":"Negro","talla":"S","barcode":"PT002SNEGRO","stock":1,"precio":89.9},{"nombre":"Pantalón Catania Correa - Camello - L","base":"Pantalón Catania Correa","color":"Camello","talla":"L","barcode":"PT002LCAMELLO","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Correa - Vino - L","base":"Pantalón Catania Correa","color":"Vino","talla":"L","barcode":"PT002LVINO","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Correa - Gris - S","base":"Pantalón Catania Correa","color":"Gris","talla":"S","barcode":"PT002SGRIS","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Correa - Gris - M","base":"Pantalón Catania Correa","color":"Gris","talla":"M","barcode":"PT002MGRIS","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Correa - Arena - S","base":"Pantalón Catania Correa","color":"Arena","talla":"S","barcode":"PT002SARENA","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Correa - Beige - L","base":"Pantalón Catania Correa","color":"Beige","talla":"L","barcode":"PT002LBEIGE","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Correa - Beige - S","base":"Pantalón Catania Correa","color":"Beige","talla":"S","barcode":"PT002SBEIGE","stock":2,"precio":89.9},{"nombre":"Pantalón Catania Correa - Arena - M","base":"Pantalón Catania Correa","color":"Arena","talla":"M","barcode":"PT002MARENA","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Correa - Beige - M","base":"Pantalón Catania Correa","color":"Beige","talla":"M","barcode":"PT002MBEIGE","stock":1,"precio":89.9},{"nombre":"Pantalón Catania Correa - Azul Marino - L","base":"Pantalón Catania Correa","color":"Azul Marino","talla":"L","barcode":"PT002LAZULMARINO","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Correa - Perla - L","base":"Pantalón Catania Correa","color":"Perla","talla":"L","barcode":"PT002LPERLA","stock":0,"precio":89.9},{"nombre":"Pantalón Catania Correa - Negro - M","base":"Pantalón Catania Correa","color":"Negro","talla":"M","barcode":"PT002MNEGRO","stock":3,"precio":89.9},{"nombre":"Pantalón Catania Correa - Perla - M","base":"Pantalón Catania Correa","color":"Perla","talla":"M","barcode":"PT002MPERLA","stock":1,"precio":89.9},{"nombre":"Pantalón Maxi - Arena - M","base":"Pantalón Maxi","color":"Arena","talla":"M","barcode":"PT004MARENA","stock":0,"precio":69.9},{"nombre":"Pantalón Maxi - Gris - M","base":"Pantalón Maxi","color":"Gris","talla":"M","barcode":"PT004MGRIS","stock":0,"precio":69.9},{"nombre":"Pantalón Maxi - Arena - L","base":"Pantalón Maxi","color":"Arena","talla":"L","barcode":"PT004LARENA","stock":0,"precio":69.9},{"nombre":"Pantalón Maxi - Arena - S","base":"Pantalón Maxi","color":"Arena","talla":"S","barcode":"PT004SARENA","stock":0,"precio":69.9},{"nombre":"Pantalón Maxi - Gris - S","base":"Pantalón Maxi","color":"Gris","talla":"S","barcode":"PT004SGRIS","stock":0,"precio":69.9},{"nombre":"Pantalón Maxi - Beige - L","base":"Pantalón Maxi","color":"Beige","talla":"L","barcode":"PT004LBEIGE","stock":0,"precio":69.9},{"nombre":"Pantalón Maxi - Beige - M","base":"Pantalón Maxi","color":"Beige","talla":"M","barcode":"PT004MBEIGE","stock":1,"precio":69.9},{"nombre":"Pantalón Maxi - Gris - L","base":"Pantalón Maxi","color":"Gris","talla":"L","barcode":"PT004LGRIS","stock":1,"precio":69.9},{"nombre":"Pantalón Maxi - Perla - S","base":"Pantalón Maxi","color":"Perla","talla":"S","barcode":"PT004SPERLA","stock":0,"precio":69.9},{"nombre":"Pantalón Maxi - Negro - L","base":"Pantalón Maxi","color":"Negro","talla":"L","barcode":"PT004LNEGRO","stock":0,"precio":69.9},{"nombre":"Pantalón Maxi - Beige - S","base":"Pantalón Maxi","color":"Beige","talla":"S","barcode":"PT004SBEIGE","stock":0,"precio":69.9},{"nombre":"Pantalón Maxi - Perla - L","base":"Pantalón Maxi","color":"Perla","talla":"L","barcode":"PT004LPERLA","stock":0,"precio":69.9},{"nombre":"Pantalón Maxi - Negro - S","base":"Pantalón Maxi","color":"Negro","talla":"S","barcode":"PT004SNEGRO","stock":0,"precio":69.9},{"nombre":"Pantalón Maxi - Negro - M","base":"Pantalón Maxi","color":"Negro","talla":"M","barcode":"PT004MNEGRO","stock":2,"precio":69.9},{"nombre":"Pantalón Maxi - Perla - M","base":"Pantalón Maxi","color":"Perla","talla":"M","barcode":"PT004MPERLA","stock":1,"precio":69.9},{"nombre":"Blusa Media Camisa - Marrón - M","base":"Blusa Media Camisa","color":"Marrón","talla":"M","barcode":"BL003MMARRON","stock":0,"precio":69.9},{"nombre":"Blusa Media Camisa - Negro - M","base":"Blusa Media Camisa","color":"Negro","talla":"M","barcode":"BL003MNEGRO","stock":0,"precio":69.9},{"nombre":"Catania Premium","base":"Catania Premium","color":"","talla":"","barcode":"CH005","stock":4,"precio":40},{"nombre":"Blazer Elegante Zara","base":"Blazer Elegante Zara","color":"","talla":"","barcode":"BZ002","stock":2,"precio":76},{"nombre":"Chaleco Cuello","base":"Chaleco Cuello","color":"","talla":"","barcode":"CH006","stock":21,"precio":50},{"nombre":"Chaleco Clásico París","base":"Chaleco Clásico París","color":"","talla":"","barcode":"CH007","stock":32,"precio":38},{"nombre":"Chaleco Suet - Camello - S","base":"Chaleco Suet","color":"Camello","talla":"S","barcode":"CH008SCAMELLO","stock":1,"precio":65},{"nombre":"Blusa de Seda","base":"Blusa de Seda","color":"","talla":"","barcode":"BL004","stock":2,"precio":38},{"nombre":"Pantalón Elástico","base":"Pantalón Elástico","color":"","talla":"","barcode":"PT005","stock":3,"precio":38},{"nombre":"Pantalón Pitillo","base":"Pantalón Pitillo","color":"","talla":"","barcode":"PT008","stock":1,"precio":38},{"nombre":"Pantalón Pita","base":"Pantalón Pita","color":"","talla":"","barcode":"PT009","stock":37,"precio":42},{"nombre":"Pantalón Clásico","base":"Pantalón Clásico","color":"","talla":"","barcode":"PT010","stock":43,"precio":38},{"nombre":"Blusa Media Camisa - Beige - S","base":"Blusa Media Camisa","color":"Beige","talla":"S","barcode":"BL003SBEIGE","stock":0,"precio":69.9},{"nombre":"Básico Body - Negro - S","base":"Básico Body","color":"Negro","talla":"S","barcode":"BO001SNEGRO","stock":1,"precio":49.9},{"nombre":"Básico Body - Perla - S","base":"Básico Body","color":"Perla","talla":"S","barcode":"BO001SPERLA","stock":1,"precio":49.9},{"nombre":"Básico Body - Beige - S","base":"Básico Body","color":"Beige","talla":"S","barcode":"BO001SBEIGE","stock":0,"precio":49.9},{"nombre":"Básico Body - Celeste - S","base":"Básico Body","color":"Celeste","talla":"S","barcode":"BO001SCELESTE","stock":0,"precio":49.9},{"nombre":"Básico Body - Marrón - S","base":"Básico Body","color":"Marrón","talla":"S","barcode":"BO001SMARRON","stock":0,"precio":49.9},{"nombre":"Básico Body - Negro - M","base":"Básico Body","color":"Negro","talla":"M","barcode":"BO001MNEGRO","stock":0,"precio":49.9},{"nombre":"Básico Body - Perla - M","base":"Básico Body","color":"Perla","talla":"M","barcode":"BO001MPERLA","stock":1,"precio":49.9},{"nombre":"Básico Body - Beige - M","base":"Básico Body","color":"Beige","talla":"M","barcode":"BO001MBEIGE","stock":1,"precio":49.9},{"nombre":"Básico Body - Celeste - M","base":"Básico Body","color":"Celeste","talla":"M","barcode":"BO001MCELESTE","stock":0,"precio":49.9},{"nombre":"Básico Body - Marrón - M","base":"Básico Body","color":"Marrón","talla":"M","barcode":"BO001MMARRON","stock":0,"precio":49.9},{"nombre":"Básico Body - Negro - L","base":"Básico Body","color":"Negro","talla":"L","barcode":"BO001LNEGRO","stock":0,"precio":49.9},{"nombre":"Básico Body - Perla - L","base":"Básico Body","color":"Perla","talla":"L","barcode":"BO001LPERLA","stock":0,"precio":49.9},{"nombre":"Básico Body - Beige - L","base":"Básico Body","color":"Beige","talla":"L","barcode":"BO001LBEIGE","stock":0,"precio":49.9},{"nombre":"Básico Body - Celeste - L","base":"Básico Body","color":"Celeste","talla":"L","barcode":"BO001LCELESTE","stock":0,"precio":49.9},{"nombre":"Básico Body - Marrón - L","base":"Básico Body","color":"Marrón","talla":"L","barcode":"BO001LMARRON","stock":0,"precio":49.9},{"nombre":"Chaleco Hilo - Maíz - M","base":"Chaleco Hilo","color":"Maíz","talla":"M","barcode":"CH010MMAIZ","stock":1,"precio":50},{"nombre":"Chaleco Hilo - Arena - M","base":"Chaleco Hilo","color":"Arena","talla":"M","barcode":"CH010MARENA","stock":1,"precio":50},{"nombre":"Chaleco Hilo - Perla - M","base":"Chaleco Hilo","color":"Perla","talla":"M","barcode":"CH010MPERLA","stock":0,"precio":50},{"nombre":"Chaleco Hilo - Celeste - M","base":"Chaleco Hilo","color":"Celeste","talla":"M","barcode":"CH010MCELESTE","stock":0,"precio":50},{"nombre":"Chaleco Hilo - Gris - M","base":"Chaleco Hilo","color":"Gris","talla":"M","barcode":"CH010MGRIS","stock":0,"precio":50},{"nombre":"Chaleco Hilo - Negro - M","base":"Chaleco Hilo","color":"Negro","talla":"M","barcode":"CH010MNEGRO","stock":0,"precio":50},{"nombre":"Blusa 0 Plisado - Azul Marino - M","base":"Blusa 0 Plisado","color":"Azul Marino","talla":"M","barcode":"BL007MAZULMARINO","stock":2,"precio":42},{"nombre":"Blusa 0 Plisado - Verde Oliva - M","base":"Blusa 0 Plisado","color":"Verde Oliva","talla":"M","barcode":"BL007MVERDEOLIVA","stock":2,"precio":42},{"nombre":"Blusa 0 Plisado - Maíz - M","base":"Blusa 0 Plisado","color":"Maíz","talla":"M","barcode":"BL007MMAIZ","stock":1,"precio":42},{"nombre":"Blusa Flores - Marrón - M","base":"Blusa Flores","color":"Marrón","talla":"M","barcode":"BL008MMARRON","stock":0,"precio":59},{"nombre":"Blusa Flores - Marrón - L","base":"Blusa Flores","color":"Marrón","talla":"L","barcode":"BL008LMARRON","stock":1,"precio":59},{"nombre":"Blusa Flores - Beige - S","base":"Blusa Flores","color":"Beige","talla":"S","barcode":"BL008SBEIGE","stock":0,"precio":59},{"nombre":"Blusa Flores - Vino - L","base":"Blusa Flores","color":"Vino","talla":"L","barcode":"BL008LVINO","stock":0,"precio":59},{"nombre":"Blusa Flores - Vino - M","base":"Blusa Flores","color":"Vino","talla":"M","barcode":"BL008MVINO","stock":0,"precio":59},{"nombre":"Blusa Flores - Azul Marino - S","base":"Blusa Flores","color":"Azul Marino","talla":"S","barcode":"BL008SAZULMARINO","stock":0,"precio":59},{"nombre":"Blusa Flores - Marrón - S","base":"Blusa Flores","color":"Marrón","talla":"S","barcode":"BL008SMARRON","stock":0,"precio":59},{"nombre":"Blusa Flores - Azul Marino - M","base":"Blusa Flores","color":"Azul Marino","talla":"M","barcode":"BL008MAZULMARINO","stock":0,"precio":59},{"nombre":"Blusa Flores - Azul Marino - L","base":"Blusa Flores","color":"Azul Marino","talla":"L","barcode":"BL008LAZULMARINO","stock":0,"precio":59},{"nombre":"Blusa Flores - Beige - L","base":"Blusa Flores","color":"Beige","talla":"L","barcode":"BL008LBEIGE","stock":0,"precio":59},{"nombre":"Blusa Flores - Vino - S","base":"Blusa Flores","color":"Vino","talla":"S","barcode":"BL008SVINO","stock":0,"precio":59},{"nombre":"Blusa Flores - Beige - M","base":"Blusa Flores","color":"Beige","talla":"M","barcode":"BL008MBEIGE","stock":0,"precio":59},{"nombre":"Chompa Coreana - Negro - M","base":"Chompa Coreana","color":"Negro","talla":"M","barcode":"CM001MNEGRO","stock":1,"precio":89},{"nombre":"Chompa Coreana - Perla - M","base":"Chompa Coreana","color":"Perla","talla":"M","barcode":"CM001MPERLA","stock":1,"precio":89},{"nombre":"Chompa Coreana - Gris - M","base":"Chompa Coreana","color":"Gris","talla":"M","barcode":"CM001MGRIS","stock":1,"precio":89},{"nombre":"Chompa Peluche - Gris - M","base":"Chompa Peluche","color":"Gris","talla":"M","barcode":"CM002MGRIS","stock":0,"precio":86},{"nombre":"Chompa Peluche - Maíz - M","base":"Chompa Peluche","color":"Maíz","talla":"M","barcode":"CM002MMAIZ","stock":0,"precio":86},{"nombre":"Chompa Peluche - Perla - M","base":"Chompa Peluche","color":"Perla","talla":"M","barcode":"CM002MPERLA","stock":4,"precio":86},{"nombre":"Chompa Peluche - Negro - M","base":"Chompa Peluche","color":"Negro","talla":"M","barcode":"CM002MNEGRO","stock":2,"precio":86},{"nombre":"Camisa Elástico - Celeste - M","base":"Camisa Elástico","color":"Celeste","talla":"M","barcode":"BL009MCELESTE","stock":1,"precio":56},{"nombre":"Camisa Elástico - Marrón - M","base":"Camisa Elástico","color":"Marrón","talla":"M","barcode":"BL009MMARRON","stock":0,"precio":56},{"nombre":"Camisa Elástico - Verde Oliva - M","base":"Camisa Elástico","color":"Verde Oliva","talla":"M","barcode":"BL009MVERDEOLIVA","stock":1,"precio":56},{"nombre":"Camisa Elástico - Beige - M","base":"Camisa Elástico","color":"Beige","talla":"M","barcode":"BL009MBEIGE","stock":1,"precio":56},{"nombre":"Blusa Manga Estampado - Marrón - M","base":"Blusa Manga Estampado","color":"Marrón","talla":"M","barcode":"BL010MMARRON","stock":5,"precio":50},{"nombre":"Blusa Manga Estampado - Marrón - L","base":"Blusa Manga Estampado","color":"Marrón","talla":"L","barcode":"BL010LMARRON","stock":2,"precio":50},{"nombre":"Blusa Manga Estampado - Perla - M","base":"Blusa Manga Estampado","color":"Perla","talla":"M","barcode":"BL010MPERLA","stock":1,"precio":50},{"nombre":"Blusa Manga Estampado - Beige - M","base":"Blusa Manga Estampado","color":"Beige","talla":"M","barcode":"BL010MBEIGE","stock":0,"precio":50},{"nombre":"Blusa Manga Estampado - Verde Oliva - M","base":"Blusa Manga Estampado","color":"Verde Oliva","talla":"M","barcode":"BL010MVERDEOLIVA","stock":0,"precio":50},{"nombre":"Blusa Manga Estampado - Perla - L","base":"Blusa Manga Estampado","color":"Perla","talla":"L","barcode":"BL010LPERLA","stock":0,"precio":50},{"nombre":"Blusa Manga Estampado - Beige - L","base":"Blusa Manga Estampado","color":"Beige","talla":"L","barcode":"BL010LBEIGE","stock":2,"precio":50},{"nombre":"Blusa Manga Estampado - Verde Oliva - L","base":"Blusa Manga Estampado","color":"Verde Oliva","talla":"L","barcode":"BL010LVERDEOLIVA","stock":0,"precio":50},{"nombre":"Blusa Manga Estampado - Negro - L","base":"Blusa Manga Estampado","color":"Negro","talla":"L","barcode":"BL010LNEGRO","stock":0,"precio":50},{"nombre":"Blusa Manga Estampado - Negro - M","base":"Blusa Manga Estampado","color":"Negro","talla":"M","barcode":"BL010MNEGRO","stock":0,"precio":50},{"nombre":"Blusa Manga Entero - Verde Oliva - M","base":"Blusa Manga Entero","color":"Verde Oliva","talla":"M","barcode":"BL011MVERDEOLIVA","stock":1,"precio":50},{"nombre":"Blusa Manga Entero - Vino - M","base":"Blusa Manga Entero","color":"Vino","talla":"M","barcode":"BL011MVINO","stock":0,"precio":50},{"nombre":"Blusa Manga Entero - Negro - M","base":"Blusa Manga Entero","color":"Negro","talla":"M","barcode":"BL011MNEGRO","stock":1,"precio":50},{"nombre":"Blusa Manga Entero - Marrón - M","base":"Blusa Manga Entero","color":"Marrón","talla":"M","barcode":"BL011MMARRON","stock":2,"precio":50},{"nombre":"Blusa Manga Entero - Beige - M","base":"Blusa Manga Entero","color":"Beige","talla":"M","barcode":"BL011MBEIGE","stock":0,"precio":50},{"nombre":"Blusa Manga Entero - Celeste - M","base":"Blusa Manga Entero","color":"Celeste","talla":"M","barcode":"BL011MCELESTE","stock":1,"precio":50},{"nombre":"Blusa Manga Entero - Perla - M","base":"Blusa Manga Entero","color":"Perla","talla":"M","barcode":"BL011MPERLA","stock":1,"precio":50},{"nombre":"Short Lino Yidda - Beige - S","base":"Short Lino Yidda","color":"Beige","talla":"S","barcode":"SH002SBEIGE","stock":0,"precio":49.9},{"nombre":"Short Lino Yidda - Verde Oliva - M","base":"Short Lino Yidda","color":"Verde Oliva","talla":"M","barcode":"SH002MVERDEOLIVA","stock":0,"precio":49.9},{"nombre":"Short Lino Yidda - Negro - S","base":"Short Lino Yidda","color":"Negro","talla":"S","barcode":"SH002SNEGRO","stock":1,"precio":49.9},{"nombre":"Short Lino Yidda - Celeste - S","base":"Short Lino Yidda","color":"Celeste","talla":"S","barcode":"SH002SCELESTE","stock":0,"precio":49.9},{"nombre":"Short Lino Yidda - Beige - M","base":"Short Lino Yidda","color":"Beige","talla":"M","barcode":"SH002MBEIGE","stock":2,"precio":49.9},{"nombre":"Short Lino Yidda - Perla - S","base":"Short Lino Yidda","color":"Perla","talla":"S","barcode":"SH002SPERLA","stock":2,"precio":49.9},{"nombre":"Short Lino Yidda - Marrón - M","base":"Short Lino Yidda","color":"Marrón","talla":"M","barcode":"SH002MMARRON","stock":0,"precio":49.9},{"nombre":"Short Lino Yidda - Plata - S","base":"Short Lino Yidda","color":"Plata","talla":"S","barcode":"SH002SPLATA","stock":0,"precio":49.9},{"nombre":"Short Lino Yidda - Rosado - M","base":"Short Lino Yidda","color":"Rosado","talla":"M","barcode":"SH002MROSADO","stock":0,"precio":49.9},{"nombre":"Short Lino Yidda - Verde Oliva - S","base":"Short Lino Yidda","color":"Verde Oliva","talla":"S","barcode":"SH002SVERDEOLIVA","stock":0,"precio":49.9},{"nombre":"Short Lino Yidda - Celeste - M","base":"Short Lino Yidda","color":"Celeste","talla":"M","barcode":"SH002MCELESTE","stock":0,"precio":49.9},{"nombre":"Short Lino Yidda - Perla - M","base":"Short Lino Yidda","color":"Perla","talla":"M","barcode":"SH002MPERLA","stock":1,"precio":49.9},{"nombre":"Short Lino Yidda - Rosado - S","base":"Short Lino Yidda","color":"Rosado","talla":"S","barcode":"SH002SROSADO","stock":0,"precio":49.9},{"nombre":"Short Lino Yidda - Marrón - S","base":"Short Lino Yidda","color":"Marrón","talla":"S","barcode":"SH002SMARRON","stock":1,"precio":49.9},{"nombre":"Short Lino Yidda - Plata - M","base":"Short Lino Yidda","color":"Plata","talla":"M","barcode":"SH002MPLATA","stock":0,"precio":49.9},{"nombre":"Short Lino Yidda - Negro - M","base":"Short Lino Yidda","color":"Negro","talla":"M","barcode":"SH002MNEGRO","stock":0,"precio":49.9},{"nombre":"Blusa Manta","base":"Blusa Manta","color":"","talla":"","barcode":"BL012","stock":1,"precio":50},{"nombre":"Básico Corto","base":"Básico Corto","color":"","talla":"","barcode":"BS001","stock":12,"precio":40},{"nombre":"Básico Largo","base":"Básico Largo","color":"","talla":"","barcode":"BS002","stock":12,"precio":45},{"nombre":"Cárdigan - Gris - M","base":"Cárdigan","color":"Gris","talla":"M","barcode":"CM003MGRIS","stock":1,"precio":80},{"nombre":"Cárdigan - Perla - M","base":"Cárdigan","color":"Perla","talla":"M","barcode":"CM003MPERLA","stock":0,"precio":80},{"nombre":"Cárdigan - Negro - M","base":"Cárdigan","color":"Negro","talla":"M","barcode":"CM003MNEGRO","stock":1,"precio":80},{"nombre":"Chompa Peluche - Beige - M","base":"Chompa Peluche","color":"Beige","talla":"M","barcode":"CM002MBEIGE","stock":1,"precio":86},{"nombre":"Blusa Flores - Perla - L","base":"Blusa Flores","color":"Perla","talla":"L","barcode":"BL008LPERLA","stock":1,"precio":59},{"nombre":"Pantalón Jean Wayi - Azul - S","base":"Pantalón Jean Wayi","color":"Azul","talla":"S","barcode":"PT012SAZUL","stock":1,"precio":80},{"nombre":"Pantalón Jean Wayi - Celeste - S","base":"Pantalón Jean Wayi","color":"Celeste","talla":"S","barcode":"PT012SCELESTE","stock":0,"precio":80},{"nombre":"Pantalón Jean Wayi - Azul Marino - S","base":"Pantalón Jean Wayi","color":"Azul Marino","talla":"S","barcode":"PT012SAZULMARINO","stock":0,"precio":80},{"nombre":"Pantalón Jean Wayi - Azul - M","base":"Pantalón Jean Wayi","color":"Azul","talla":"M","barcode":"PT012MAZUL","stock":1,"precio":80},{"nombre":"Pantalón Jean Wayi - Celeste - M","base":"Pantalón Jean Wayi","color":"Celeste","talla":"M","barcode":"PT012MCELESTE","stock":1,"precio":80},{"nombre":"Pantalón Jean Wayi - Azul Marino - M","base":"Pantalón Jean Wayi","color":"Azul Marino","talla":"M","barcode":"PT012MAZULMARINO","stock":0,"precio":80},{"nombre":"Pantalón Jean Wayi - Azul - L","base":"Pantalón Jean Wayi","color":"Azul","talla":"L","barcode":"PT012LAZUL","stock":0,"precio":80},{"nombre":"Pantalón Jean Wayi - Celeste - L","base":"Pantalón Jean Wayi","color":"Celeste","talla":"L","barcode":"PT012LCELESTE","stock":0,"precio":80},{"nombre":"Pantalón Jean Wayi - Azul Marino - L","base":"Pantalón Jean Wayi","color":"Azul Marino","talla":"L","barcode":"PT012LAZULMARINO","stock":0,"precio":80},{"nombre":"Blusa Flores - Verde Botella - M","base":"Blusa Flores","color":"Verde Botella","talla":"M","barcode":"BL008MVERDEBOTELLA","stock":1,"precio":59},{"nombre":"Chaleco Lino - Negro - XS","base":"Chaleco Lino","color":"Negro","talla":"XS","barcode":"CH0003XSNEGRO","stock":1,"precio":64.9},{"nombre":"Chaleco Lino - Perla - XS","base":"Chaleco Lino","color":"Perla","talla":"XS","barcode":"CH0003XSPERLA","stock":1,"precio":64.9},{"nombre":"Chaleco Lino - Beige - XS","base":"Chaleco Lino","color":"Beige","talla":"XS","barcode":"CH0003XSBEIGE","stock":1,"precio":64.9},{"nombre":"Chaleco Catania - Azul Marino - XL","base":"Chaleco Catania","color":"Azul Marino","talla":"XL","barcode":"CH001XLAZULMARINO","stock":2,"precio":59.9},{"nombre":"Chaleco Catania - Negro - XL","base":"Chaleco Catania","color":"Negro","talla":"XL","barcode":"CH001XLNEGRO","stock":1,"precio":59.9},{"nombre":"Chaleco Catania - Vino - XS","base":"Chaleco Catania","color":"Vino","talla":"XS","barcode":"CH001XSVINO","stock":1,"precio":59.9},{"nombre":"Chaleco Catania - Azul - XS","base":"Chaleco Catania","color":"Azul","talla":"XS","barcode":"CH001XSAZUL","stock":1,"precio":59.9},{"nombre":"Chaleco Catania - Plata - XS","base":"Chaleco Catania","color":"Plata","talla":"XS","barcode":"CH001XSPLATA","stock":1,"precio":59.9},{"nombre":"Chaleco Suet - Negro - M","base":"Chaleco Suet","color":"Negro","talla":"M","barcode":"CH008MNEGRO","stock":1,"precio":65},{"nombre":"Blusa Lazo - Verde Oliva - M","base":"Blusa Lazo","color":"Verde Oliva","talla":"M","barcode":"BL014MVERDEOLIVA","stock":1,"precio":50},{"nombre":"Blusa Lazo - Verde Oliva - L","base":"Blusa Lazo","color":"Verde Oliva","talla":"L","barcode":"BL014LVERDEOLIVA","stock":1,"precio":50},{"nombre":"Blusa Lazo - Perla - M","base":"Blusa Lazo","color":"Perla","talla":"M","barcode":"BL014MPERLA","stock":1,"precio":50},{"nombre":"Blusa Lazo - Perla - L","base":"Blusa Lazo","color":"Perla","talla":"L","barcode":"BL014LPERLA","stock":1,"precio":50},{"nombre":"Blusa Lazo - Beige - M","base":"Blusa Lazo","color":"Beige","talla":"M","barcode":"BL014MBEIGE","stock":3,"precio":50},{"nombre":"Blusa Lazo - Beige - L","base":"Blusa Lazo","color":"Beige","talla":"L","barcode":"BL014LBEIGE","stock":3,"precio":50},{"nombre":"Blusa Lazo - Negro - M","base":"Blusa Lazo","color":"Negro","talla":"M","barcode":"BL014MNEGRO","stock":1,"precio":50},{"nombre":"Blusa Lazo - Negro - L","base":"Blusa Lazo","color":"Negro","talla":"L","barcode":"BL014LNEGRO","stock":1,"precio":50},{"nombre":"Blusa Manga Larga - Verde Oliva - M","base":"Blusa Manga Larga","color":"Verde Oliva","talla":"M","barcode":"BL015MVERDEOLIVA","stock":1,"precio":50},{"nombre":"Blusa Manga Larga - Negro - M","base":"Blusa Manga Larga","color":"Negro","talla":"M","barcode":"BL015MNEGRO","stock":1,"precio":50},{"nombre":"Blusa Encaje - Beige - S","base":"Blusa Encaje","color":"Beige","talla":"S","barcode":"BL016SBEIGE","stock":10,"precio":50},{"nombre":"Blusa Encaje - Beige - M","base":"Blusa Encaje","color":"Beige","talla":"M","barcode":"BL016MBEIGE","stock":6,"precio":50},{"nombre":"Blusa Encaje - Beige - L","base":"Blusa Encaje","color":"Beige","talla":"L","barcode":"BL016LBEIGE","stock":6,"precio":50},{"nombre":"Blusa Encaje - Marrón - S","base":"Blusa Encaje","color":"Marrón","talla":"S","barcode":"BL016SMARRON","stock":25,"precio":50},{"nombre":"Blusa Encaje - Marrón - M","base":"Blusa Encaje","color":"Marrón","talla":"M","barcode":"BL016MMARRON","stock":21,"precio":50},{"nombre":"Blusa Encaje - Marrón - L","base":"Blusa Encaje","color":"Marrón","talla":"L","barcode":"BL016LMARRON","stock":4,"precio":50},{"nombre":"Pantalón Catania Pinza - Negro - S","base":"Pantalón Catania Pinza","color":"Negro","talla":"S","barcode":"PT013SNEGRO","stock":1,"precio":75},{"nombre":"Pantalón Catania Pinza - Negro - M","base":"Pantalón Catania Pinza","color":"Negro","talla":"M","barcode":"PT013MNEGRO","stock":1,"precio":75},{"nombre":"Pantalón Catania Pinza - Arena - S","base":"Pantalón Catania Pinza","color":"Arena","talla":"S","barcode":"PT013SARENA","stock":1,"precio":75},{"nombre":"Pantalón Catania Pinza - Arena - M","base":"Pantalón Catania Pinza","color":"Arena","talla":"M","barcode":"PT013MARENA","stock":1,"precio":75},{"nombre":"Pantalón Catania Pinza - Marrón - S","base":"Pantalón Catania Pinza","color":"Marrón","talla":"S","barcode":"PT013SMARRON","stock":1,"precio":75},{"nombre":"Pantalón Catania Pinza - Marrón - M","base":"Pantalón Catania Pinza","color":"Marrón","talla":"M","barcode":"PT013MMARRON","stock":1,"precio":75},{"nombre":"Blusa Lazo - Camello - M","base":"Blusa Lazo","color":"Camello","talla":"M","barcode":"BL014MCAMELLO","stock":1,"precio":50},{"nombre":"Blusa Lazo - Camello - L","base":"Blusa Lazo","color":"Camello","talla":"L","barcode":"BL014LCAMELLO","stock":1,"precio":50},{"nombre":"Blusa Cruzada - Beige - M","base":"Blusa Cruzada","color":"Beige","talla":"M","barcode":"BL018MBEIGE","stock":2,"precio":50},{"nombre":"Blusa Broderi - Verde Oliva - M","base":"Blusa Broderi","color":"Verde Oliva","talla":"M","barcode":"BL019MVERDEOLIVA","stock":1,"precio":54},{"nombre":"Blusa Cruzada - Perla - M","base":"Blusa Cruzada","color":"Perla","talla":"M","barcode":"BL018MPERLA","stock":1,"precio":50},{"nombre":"Blusa Cruzada - Celeste - M","base":"Blusa Cruzada","color":"Celeste","talla":"M","barcode":"BL018MCELESTE","stock":1,"precio":50},{"nombre":"Chaleco Dorado - Vino - M","base":"Chaleco Dorado","color":"Vino","talla":"M","barcode":"CH011MVINO","stock":2,"precio":95},{"nombre":"Pantalón Catania Clásico - Negro - S","base":"Pantalón Catania Clásico","color":"Negro","talla":"S","barcode":"PT014SNEGRO","stock":3,"precio":85},{"nombre":"Pantalón Catania Clásico - Negro - M","base":"Pantalón Catania Clásico","color":"Negro","talla":"M","barcode":"PT014MNEGRO","stock":4,"precio":85},{"nombre":"Pantalón Catania Clásico - Negro - L","base":"Pantalón Catania Clásico","color":"Negro","talla":"L","barcode":"PT014LNEGRO","stock":3,"precio":85},{"nombre":"Pantalón Catania Clásico - Gris - S","base":"Pantalón Catania Clásico","color":"Gris","talla":"S","barcode":"PT014SGRIS","stock":1,"precio":85},{"nombre":"Pantalón Catania Clásico - Gris - M","base":"Pantalón Catania Clásico","color":"Gris","talla":"M","barcode":"PT014MGRIS","stock":2,"precio":85},{"nombre":"Pantalón Catania Clásico - Beige - S","base":"Pantalón Catania Clásico","color":"Beige","talla":"S","barcode":"PT014SBEIGE","stock":4,"precio":85},{"nombre":"Pantalón Catania Clásico - Beige - M","base":"Pantalón Catania Clásico","color":"Beige","talla":"M","barcode":"PT014MBEIGE","stock":2,"precio":85},{"nombre":"Pantalón Catania Clásico - Beige - L","base":"Pantalón Catania Clásico","color":"Beige","talla":"L","barcode":"PT014LBEIGE","stock":1,"precio":85},{"nombre":"Pantalón Catania Clásico - Marrón - S","base":"Pantalón Catania Clásico","color":"Marrón","talla":"S","barcode":"PT014SMARRON","stock":2,"precio":85},{"nombre":"Pantalón Catania Clásico - Marrón - M","base":"Pantalón Catania Clásico","color":"Marrón","talla":"M","barcode":"PT014MMARRON","stock":1,"precio":85},{"nombre":"Pantalón Catania Clásico - Marrón - L","base":"Pantalón Catania Clásico","color":"Marrón","talla":"L","barcode":"PT014LMARRON","stock":1,"precio":85},{"nombre":"Pantalón Catania Clásico - Plata - S","base":"Pantalón Catania Clásico","color":"Plata","talla":"S","barcode":"PT014SPLATA","stock":1,"precio":85},{"nombre":"Pantalón Catania Clásico - Azul Marino - S","base":"Pantalón Catania Clásico","color":"Azul Marino","talla":"S","barcode":"PT014SAZULMARINO","stock":1,"precio":85},{"nombre":"Pantalón Catania Clásico - Azul Marino - M","base":"Pantalón Catania Clásico","color":"Azul Marino","talla":"M","barcode":"PT014MAZULMARINO","stock":1,"precio":85},{"nombre":"Pantalón Catania Clásico - Vino - S","base":"Pantalón Catania Clásico","color":"Vino","talla":"S","barcode":"PT014SVINO","stock":1,"precio":85},{"nombre":"Pantalón Catania Clásico - Vino - M","base":"Pantalón Catania Clásico","color":"Vino","talla":"M","barcode":"PT014MVINO","stock":1,"precio":85},{"nombre":"Pantalón Catania Clásico - Vino - L","base":"Pantalón Catania Clásico","color":"Vino","talla":"L","barcode":"PT014LVINO","stock":1,"precio":85},{"nombre":"Pantalón Catania Clásico - Perla - M","base":"Pantalón Catania Clásico","color":"Perla","talla":"M","barcode":"PT014MPERLA","stock":1,"precio":85},{"nombre":"Blusa Chantaje - Negro - M","base":"Blusa Chantaje","color":"Negro","talla":"M","barcode":"BL020MMNEGRO","stock":1,"precio":50},{"nombre":"Blusa Chantaje - Perla - M","base":"Blusa Chantaje","color":"Perla","talla":"M","barcode":"BL020MMPERLA","stock":1,"precio":50},{"nombre":"Blusa Chantaje - Rosado - M","base":"Blusa Chantaje","color":"Rosado","talla":"M","barcode":"BL020MMROSADO","stock":1,"precio":50},{"nombre":"Blusa Chantaje - Beige - M","base":"Blusa Chantaje","color":"Beige","talla":"M","barcode":"BL020MMBEIGE","stock":1,"precio":50},{"nombre":"Blusa Bordado - Camello - M","base":"Blusa Bordado","color":"Camello","talla":"M","barcode":"BL005MCAMELLO","stock":1,"precio":44.9},{"nombre":"Pantalón Catania Clásico - Perla - S","base":"Pantalón Catania Clásico","color":"Perla","talla":"S","barcode":"PT014SPERLA","stock":1,"precio":85},{"nombre":"Blusa Animal Print - Perla - M","base":"Blusa Animal Print","color":"Perla","talla":"M","barcode":"BL021MPERLA","stock":2,"precio":55},{"nombre":"Blusa Animal Print - Beige - M","base":"Blusa Animal Print","color":"Beige","talla":"M","barcode":"BL021MBEIGE","stock":1,"precio":55},{"nombre":"Blusa Bombacho - Verde Oliva - M","base":"Blusa Bombacho","color":"Verde Oliva","talla":"M","barcode":"BL022MVERDEOLIVA","stock":1,"precio":50},{"nombre":"Blusa Bombacho - Verde Oliva - L","base":"Blusa Bombacho","color":"Verde Oliva","talla":"L","barcode":"BL022LVERDEOLIVA","stock":1,"precio":50},{"nombre":"Blusa Bombacho - Negro - M","base":"Blusa Bombacho","color":"Negro","talla":"M","barcode":"BL022MNEGRO","stock":1,"precio":50},{"nombre":"Blusa Bombacho - Negro - L","base":"Blusa Bombacho","color":"Negro","talla":"L","barcode":"BL022LNEGRO","stock":1,"precio":50},{"nombre":"Blusa Bombacho - Ladrilll - L","base":"Blusa Bombacho","color":"Ladrilll","talla":"L","barcode":"BL022LLADRILLO","stock":1,"precio":50},{"nombre":"Blusa Manga Estampado - Ladrillo - M","base":"Blusa Manga Estampado","color":"Ladrillo","talla":"M","barcode":"BL010MLADRILLO","stock":2,"precio":50},{"nombre":"Blusa Manga Estampado - Rosado - M","base":"Blusa Manga Estampado","color":"Rosado","talla":"M","barcode":"BL010MROSADO","stock":1,"precio":50},{"nombre":"Blusa Manga Estampado - Ladrillo - L","base":"Blusa Manga Estampado","color":"Ladrillo","talla":"L","barcode":"BL010LLADRILLO","stock":2,"precio":50},{"nombre":"Blusa Manga Entero - Rosado - M","base":"Blusa Manga Entero","color":"Rosado","talla":"M","barcode":"BL011MROSADO","stock":1,"precio":50},{"nombre":"Blusa Manga Entero - Azul - M","base":"Blusa Manga Entero","color":"Azul","talla":"M","barcode":"BL011MAZUL","stock":1,"precio":50},{"nombre":"Blusa 3/4 Animal Print - Vino - M","base":"Blusa 3/4 Animal Print","color":"Vino","talla":"M","barcode":"BL024MVINO","stock":1,"precio":55},{"nombre":"Blusa 3/4 Animal Print - Beige - M","base":"Blusa 3/4 Animal Print","color":"Beige","talla":"M","barcode":"BL024MBEIGE","stock":1,"precio":55},{"nombre":"Blusa 3/4 Animal Print - Negro - M","base":"Blusa 3/4 Animal Print","color":"Negro","talla":"M","barcode":"BL024MNEGRO","stock":1,"precio":55},{"nombre":"Blusa 3/4 Animal Print - Perla - M","base":"Blusa 3/4 Animal Print","color":"Perla","talla":"M","barcode":"BL024MPERLA","stock":1,"precio":55},{"nombre":"Chaleco Bordado - Paleta - XS","base":"Chaleco Bordado","color":"Paleta","talla":"XS","barcode":"CH012XSPALETA","stock":39,"precio":65},{"nombre":"Chaleco Bordado - Paleta - S","base":"Chaleco Bordado","color":"Paleta","talla":"S","barcode":"CH012SPALETA","stock":30,"precio":65},{"nombre":"Chaleco Bordado - Paleta - M","base":"Chaleco Bordado","color":"Paleta","talla":"M","barcode":"CH012MPALETA","stock":30,"precio":65},{"nombre":"Chaleco Bordado - Paleta - L","base":"Chaleco Bordado","color":"Paleta","talla":"L","barcode":"CH012LPALETA","stock":23,"precio":65},{"nombre":"Pantalón Lino - Topo - L","base":"Pantalón Lino","color":"Topo","talla":"L","barcode":"PT003LTOPO","stock":4,"precio":75},{"nombre":"Chaleco Catania Zeventh - Beige - S","base":"Chaleco Catania Zeventh","color":"Beige","talla":"S","barcode":"CH013SBEIGE","stock":1,"precio":60},{"nombre":"Chaleco Catania Zeventh - Marrón - S","base":"Chaleco Catania Zeventh","color":"Marrón","talla":"S","barcode":"CH013SMARRON","stock":1,"precio":60},{"nombre":"Chaleco Catania Zeventh - Negro - M","base":"Chaleco Catania Zeventh","color":"Negro","talla":"M","barcode":"CH013MNEGRO","stock":1,"precio":60},{"nombre":"Pantalón Lino - Topo - S","base":"Pantalón Lino","color":"Topo","talla":"S","barcode":"PT003STOPO","stock":4,"precio":75},{"nombre":"Pantalón Lino - Topo - M","base":"Pantalón Lino","color":"Topo","talla":"M","barcode":"PT003MTOPO","stock":2,"precio":75},{"nombre":"Pantalón Lino - Piedra - M","base":"Pantalón Lino","color":"Piedra","talla":"M","barcode":"PT003MPIEDRA","stock":1,"precio":75},{"nombre":"Pantalón Lino - Piedra - L","base":"Pantalón Lino","color":"Piedra","talla":"L","barcode":"PT003LPIEDRA","stock":1,"precio":75},{"nombre":"Chaleco Catania Yidda - Marrón - XS","base":"Chaleco Catania Yidda","color":"Marrón","talla":"XS","barcode":"CH014XSMARRON","stock":1,"precio":60},{"nombre":"Chaleco Catania Yidda - Beige - M","base":"Chaleco Catania Yidda","color":"Beige","talla":"M","barcode":"CH014MBEIGE","stock":1,"precio":60},{"nombre":"Chaleco Catania Yidda - Beige - L","base":"Chaleco Catania Yidda","color":"Beige","talla":"L","barcode":"CH014LBEIGE","stock":1,"precio":60},{"nombre":"Pantalón Lino - Verde Oliva - S","base":"Pantalón Lino","color":"Verde Oliva","talla":"S","barcode":"PT003SVERDEOLIVA","stock":1,"precio":75},{"nombre":"Pantalón Lino - Verde Oliva - M","base":"Pantalón Lino","color":"Verde Oliva","talla":"M","barcode":"PT003MVERDEOLIVA","stock":1,"precio":75},{"nombre":"Pantalón Catania Clasico - Negro - XL","base":"Pantalón Catania Clasico","color":"Negro","talla":"XL","barcode":"PT014XLNEGRO","stock":3,"precio":85},{"nombre":"Pantalón Catania Clasico - Cocoa - M","base":"Pantalón Catania Clasico","color":"Cocoa","talla":"M","barcode":"PT014MCOCOA","stock":1,"precio":85},{"nombre":"Pantalón Catania Clasico - Cocoa - L","base":"Pantalón Catania Clasico","color":"Cocoa","talla":"L","barcode":"PT014LCOCOA","stock":1,"precio":85},{"nombre":"Pantalón Catania Clasico - Verde Botella - S","base":"Pantalón Catania Clasico","color":"Verde Botella","talla":"S","barcode":"PT014SVERDEBOTELLA","stock":1,"precio":85},{"nombre":"Pantalón Catania Clasico - Verde Botella - M","base":"Pantalón Catania Clasico","color":"Verde Botella","talla":"M","barcode":"PT014MVERDEBOTELLA","stock":1,"precio":85},{"nombre":"Pantalón Catania Clasico - Verde Botella - L","base":"Pantalón Catania Clasico","color":"Verde Botella","talla":"L","barcode":"PT014LVERDEBOTELLA","stock":1,"precio":85},{"nombre":"Chompa Trenza - Negro - M","base":"Chompa Trenza","color":"Negro","talla":"M","barcode":"CM004MNEGRO","stock":4,"precio":65},{"nombre":"Chompa Trenza - Cocoa - M","base":"Chompa Trenza","color":"Cocoa","talla":"M","barcode":"CM004MCOCOA","stock":2,"precio":65},{"nombre":"Chompa Trenza - Gris - M","base":"Chompa Trenza","color":"Gris","talla":"M","barcode":"CM004MGRIS","stock":2,"precio":65},{"nombre":"Básico Perlas - Negro - M","base":"Básico Perlas","color":"Negro","talla":"M","barcode":"BS003MNEGRO","stock":2,"precio":45},{"nombre":"Básico Perlas - Plata - M","base":"Básico Perlas","color":"Plata","talla":"M","barcode":"BS003MPLATA","stock":2,"precio":45},{"nombre":"Básico Perlas - Rojo - M","base":"Básico Perlas","color":"Rojo","talla":"M","barcode":"BS003MROJO","stock":2,"precio":45},{"nombre":"Básico Perlas - Beige - M","base":"Básico Perlas","color":"Beige","talla":"M","barcode":"BS003MBEIGE","stock":2,"precio":45},{"nombre":"Básico Perlas - Perla - M","base":"Básico Perlas","color":"Perla","talla":"M","barcode":"BS003MPERLA","stock":2,"precio":45},{"nombre":"Básico Perlas - Camello - M","base":"Básico Perlas","color":"Camello","talla":"M","barcode":"BS003MCAMELLO","stock":1,"precio":45},{"nombre":"Básico Manga Larga - Perla - M","base":"Básico Manga Larga","color":"Perla","talla":"M","barcode":"BS004MPERLA","stock":1,"precio":45},{"nombre":"Básico Manga Larga - Plata - M","base":"Básico Manga Larga","color":"Plata","talla":"M","barcode":"BS004MPLATA","stock":1,"precio":45},{"nombre":"Básico Manga Larga - Camello - M","base":"Básico Manga Larga","color":"Camello","talla":"M","barcode":"BS004MCAMELLO","stock":1,"precio":45},{"nombre":"Básico Manga Larga - Melón - M","base":"Básico Manga Larga","color":"Melón","talla":"M","barcode":"BS004MMELON","stock":2,"precio":45},{"nombre":"Básico Manga Larga - Beige - M","base":"Básico Manga Larga","color":"Beige","talla":"M","barcode":"BS004MBEIGE","stock":2,"precio":45},{"nombre":"Básico Manga Larga - Negro - M","base":"Básico Manga Larga","color":"Negro","talla":"M","barcode":"BS004MNEGRO","stock":2,"precio":45},{"nombre":"Básico Medio Cuello - Negro - M","base":"Básico Medio Cuello","color":"Negro","talla":"M","barcode":"BS005MNEGRO","stock":1,"precio":45},{"nombre":"Básico Medio Cuello - Plata - M","base":"Básico Medio Cuello","color":"Plata","talla":"M","barcode":"BS005MPLATA","stock":2,"precio":45},{"nombre":"Básico Medio Cuello - Perla - M","base":"Básico Medio Cuello","color":"Perla","talla":"M","barcode":"BS005MPERLA","stock":2,"precio":45},{"nombre":"Básico Medio Cuello - Beige - M","base":"Básico Medio Cuello","color":"Beige","talla":"M","barcode":"BS005MBEIGE","stock":2,"precio":45},{"nombre":"Básico Medio Cuello - Mostaza - M","base":"Básico Medio Cuello","color":"Mostaza","talla":"M","barcode":"BS005MMOSTAZA","stock":2,"precio":45},{"nombre":"Básico Medio Cuello - Rojo - M","base":"Básico Medio Cuello","color":"Rojo","talla":"M","barcode":"BS005MROJO","stock":1,"precio":45},{"nombre":"Pantalón Elástico Lino - Negro - S","base":"Pantalón Elástico Lino","color":"Negro","talla":"S","barcode":"PT015SNEGRO","stock":1,"precio":75},{"nombre":"Pantalón Elástico Lino - Negro - M","base":"Pantalón Elástico Lino","color":"Negro","talla":"M","barcode":"PT015MNEGRO","stock":1,"precio":75},{"nombre":"Pantalón Elástico Lino - Negro - L","base":"Pantalón Elástico Lino","color":"Negro","talla":"L","barcode":"PT015LNEGRO","stock":1,"precio":75},{"nombre":"Pantalón Elástico Lino - Topo - S","base":"Pantalón Elástico Lino","color":"Topo","talla":"S","barcode":"PT015STOPO","stock":1,"precio":75},{"nombre":"Pantalón Elástico Lino - Topo - M","base":"Pantalón Elástico Lino","color":"Topo","talla":"M","barcode":"PT015MTOPO","stock":1,"precio":75},{"nombre":"Pantalón Elástico Lino - Topo - L","base":"Pantalón Elástico Lino","color":"Topo","talla":"L","barcode":"PT015LTOPO","stock":1,"precio":75},{"nombre":"Pantalón Elástico Lino - Beige - S","base":"Pantalón Elástico Lino","color":"Beige","talla":"S","barcode":"PT015SBEIGE","stock":1,"precio":75},{"nombre":"Pantalón Elástico Lino - Beige - M","base":"Pantalón Elástico Lino","color":"Beige","talla":"M","barcode":"PT015MBEIGE","stock":1,"precio":75},{"nombre":"Pantalón Elástico Lino - Beige - L","base":"Pantalón Elástico Lino","color":"Beige","talla":"L","barcode":"PT015LBEIGE","stock":1,"precio":75},{"nombre":"Pantalón Elástico Lino - Plata - S","base":"Pantalón Elástico Lino","color":"Plata","talla":"S","barcode":"PT015SPLATA","stock":1,"precio":75},{"nombre":"Pantalón Elástico Lino - Plata - M","base":"Pantalón Elástico Lino","color":"Plata","talla":"M","barcode":"PT015MPLATA","stock":1,"precio":75},{"nombre":"Pantalón Elástico Lino - Plata - L","base":"Pantalón Elástico Lino","color":"Plata","talla":"L","barcode":"PT015LPLATA","stock":1,"precio":75},{"nombre":"Blusa Lazo - Topo - M","base":"Blusa Lazo","color":"Topo","talla":"M","barcode":"BL014MTOPO","stock":1,"precio":50},{"nombre":"Blusa Lazo - Topo - L","base":"Blusa Lazo","color":"Topo","talla":"L","barcode":"BL014LTOPO","stock":1,"precio":50},{"nombre":"Blusa Lazo - Rojo - L","base":"Blusa Lazo","color":"Rojo","talla":"L","barcode":"BL014LROJO","stock":1,"precio":50},{"nombre":"Blusa Lazo - Plata - M","base":"Blusa Lazo","color":"Plata","talla":"M","barcode":"BL014MPLATA","stock":3,"precio":50},{"nombre":"Blusa Lazo - Plata - L","base":"Blusa Lazo","color":"Plata","talla":"L","barcode":"BL014LPLATA","stock":2,"precio":50},{"nombre":"Blusa Lazo - Marrón - M","base":"Blusa Lazo","color":"Marrón","talla":"M","barcode":"BL014MMARRON","stock":1,"precio":50},{"nombre":"Blusa Lazo - Azul Marino - M","base":"Blusa Lazo","color":"Azul Marino","talla":"M","barcode":"BL014MAZULMARINO","stock":1,"precio":50},{"nombre":"Blusa Lazo - Azul Marino - L","base":"Blusa Lazo","color":"Azul Marino","talla":"L","barcode":"BL014LAZULMARINO","stock":1,"precio":50},{"nombre":"Blusa Encaje - Azul Marino - S","base":"Blusa Encaje","color":"Azul Marino","talla":"S","barcode":"BL016SAZULMARINO","stock":11,"precio":50},{"nombre":"Blusa Encaje - Azul Marino - M","base":"Blusa Encaje","color":"Azul Marino","talla":"M","barcode":"BL016MAZULMARINO","stock":14,"precio":50},{"nombre":"Blusa Encaje - Azul Marino - L","base":"Blusa Encaje","color":"Azul Marino","talla":"L","barcode":"BL016LAZULMARINO","stock":5,"precio":50},{"nombre":"Blusa Encaje - Rojo - S","base":"Blusa Encaje","color":"Rojo","talla":"S","barcode":"BL016SROJO","stock":9,"precio":50},{"nombre":"Blusa Encaje - Rojo - M","base":"Blusa Encaje","color":"Rojo","talla":"M","barcode":"BL016MROJO","stock":9,"precio":50},{"nombre":"Blusa Encaje - Rojo - L","base":"Blusa Encaje","color":"Rojo","talla":"L","barcode":"BL016LROJO","stock":4,"precio":50},{"nombre":"Blusa Satín Larga - Negro - S","base":"Blusa Satín Larga","color":"Negro","talla":"S","barcode":"BL025SNEGRO","stock":1,"precio":65},{"nombre":"Blusa Satín Larga - Negro - M","base":"Blusa Satín Larga","color":"Negro","talla":"M","barcode":"BL025MNEGRO","stock":1,"precio":65},{"nombre":"Blusa Satín Larga - Negro - L","base":"Blusa Satín Larga","color":"Negro","talla":"L","barcode":"BL025LNEGRO","stock":1,"precio":65},{"nombre":"Blusa Satín Larga - Perla - S","base":"Blusa Satín Larga","color":"Perla","talla":"S","barcode":"BL025SPERLA","stock":1,"precio":65},{"nombre":"Blusa Satín Larga - Perla - M","base":"Blusa Satín Larga","color":"Perla","talla":"M","barcode":"BL025MPERLA","stock":1,"precio":65},{"nombre":"Blusa Satín Larga - Perla - L","base":"Blusa Satín Larga","color":"Perla","talla":"L","barcode":"BL025LPERLA","stock":1,"precio":65},{"nombre":"Blusa Satín Larga - Perla - XS","base":"Blusa Satín Larga","color":"Perla","talla":"XS","barcode":"BL025XSPERLA","stock":1,"precio":65}];
+
+let productIndex = new Map(PRODUCTS.map(p => [p.barcode, p]));
+let cart = {};
+let currentView = 'grid';
+let stockFilter = 'instock';
+let selectedBarcodes = new Set();
+
+// ─── DOM REFS ─────────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+let elCartCount, elStatTotal, elStatStock, elResultsCount,
+    elSelectedCount, elCartItems, elTotalSkus, elTotalLabels, elContainer, elToast;
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  // FIX BUG 1: todos los refs cacheados dentro del DOMContentLoaded
+  elCartCount    = $('cart-count');
+  elStatTotal    = $('stat-total');
+  elStatStock    = $('stat-stock');
+  elResultsCount = $('results-count');
+  elSelectedCount= $('selected-count');
+  elCartItems    = $('cart-items');
+  elTotalSkus    = $('total-skus');
+  elTotalLabels  = $('total-labels');
+  elContainer    = $('product-container');
+  elToast        = $('toast');
+
+  buildFilters();
+  renderProducts();
+  updateStats();
+});
+
+// ─── FILTERS ─────────────────────────────────────────────────────────────────
+function buildFilters() {
+  const cats   = [...new Set(PRODUCTS.map(p => p.base))].sort();
+  const colors = [...new Set(PRODUCTS.map(p => p.color).filter(Boolean))].sort();
+  const tallas = [...new Set(PRODUCTS.map(p => p.talla).filter(Boolean))].sort();
+
+  const appendOptions = (selId, items) => {
+    const frag = document.createDocumentFragment();
+    items.forEach(v => {
+      const opt = document.createElement('option');
+      opt.value = opt.textContent = v;
+      frag.appendChild(opt);
+    });
+    $(selId).appendChild(frag);
+  };
+  appendOptions('cat-filter', cats);
+  appendOptions('color-filter', colors);
+  appendOptions('talla-filter', tallas);
+}
+
+function getFiltered() {
+  const search = $('search-input').value.toLowerCase();
+  const cat    = $('cat-filter').value;
+  const color  = $('color-filter').value;
+  const talla  = $('talla-filter').value;
+
+  return PRODUCTS.filter(p => {
+    if (stockFilter === 'instock' && p.stock <= 0) return false;
+    if (stockFilter === 'zero'    && p.stock >  0) return false;
+    if (search && !p.nombre.toLowerCase().includes(search) && !p.barcode.toLowerCase().includes(search)) return false;
+    if (cat   && p.base  !== cat)   return false;
+    if (color && p.color !== color) return false;
+    if (talla && p.talla !== talla) return false;
+    return true;
+  });
+}
+
+function updateStats() {
+  let withStock = 0;
+  for (const p of PRODUCTS) { if (p.stock > 0) withStock++; }
+  elStatTotal.textContent = PRODUCTS.length;
+  elStatStock.textContent = withStock;
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function renderProducts() {
+  const filtered = getFiltered();
+  const n = filtered.length;
+  elResultsCount.textContent  = `${n} prenda${n !== 1 ? 's' : ''} encontrada${n !== 1 ? 's' : ''}`;
+  elSelectedCount.textContent = selectedBarcodes.size > 0
+    ? `${selectedBarcodes.size} marcada${selectedBarcodes.size !== 1 ? 's' : ''}` : '';
+
+  if (n === 0) {
+    elContainer.innerHTML = '<div class="no-results">No se encontraron prendas con esos filtros.<br>Prueba cambiando los filtros o buscando otro nombre.</div>';
+    return;
+  }
+
+  if (currentView === 'grid') {
+    elContainer.innerHTML = `<div class="product-grid">${filtered.map(cardHTML).join('')}</div>`;
+  } else {
+    elContainer.innerHTML =
+      `<div class="list-header"><span></span><span>Nombre</span><span>Color</span><span>Talla</span><span>Código</span><span>Precio</span><span>Stock</span></div>` +
+      `<div class="product-list">${filtered.map(rowHTML).join('')}</div>`;
+  }
+}
+
+function cardHTML(p) {
+  const sel = selectedBarcodes.has(p.barcode);
+  // FIX BUG 6: si ya está en carrito, mostrar qty del carrito; si no, usar stock o 1
+  const qty = cart[p.barcode] ? cart[p.barcode].qty : (p.stock > 0 ? p.stock : 1);
+  const hasStock = p.stock > 0;
+  return `<div class="product-card${sel ? ' selected' : ''}" onclick="toggleSelect('${p.barcode}',event)">
+    <div class="card-name">${p.base}</div>
+    <div class="card-meta">
+      ${p.color ? `<span class="tag">${p.color}</span>` : ''}
+      ${p.talla ? `<span class="tag">${p.talla}</span>` : ''}
+    </div>
+    <div class="card-barcode">${p.barcode}</div>
+    <div class="card-footer">
+      <div class="card-price">S/ ${p.precio.toFixed(2)}</div>
+      <div class="card-stock">
+        <span class="stock-dot ${hasStock ? 'stock-ok' : 'stock-zero'}"></span>
+        <span style="color:${hasStock ? 'var(--success)' : 'var(--muted)'}">Stock: ${p.stock}</span>
+      </div>
+    </div>
+    <div class="qty-row" onclick="event.stopPropagation()">
+      <button class="qty-btn" onclick="changeQty('${p.barcode}',-1)" title="Menos">−</button>
+      <input class="qty-input" type="number" min="1" value="${qty}" id="qty-${p.barcode}"
+             onchange="setQtyCard('${p.barcode}',this.value)">
+      <button class="qty-btn" onclick="changeQty('${p.barcode}',1)" title="Más">+</button>
+      <button class="btn-add-cart" onclick="addToCart('${p.barcode}')">🏷️ Agregar</button>
+    </div>
+  </div>`;
+}
+
+function rowHTML(p) {
+  const sel = selectedBarcodes.has(p.barcode);
+  return `<div class="product-row${sel ? ' selected' : ''}" onclick="toggleSelect('${p.barcode}',event)">
+    <div class="row-check">${sel ? '✓' : ''}</div>
+    <div class="row-name">${p.base}</div>
+    <div class="row-color">${p.color || '—'}</div>
+    <div class="row-talla">${p.talla || '—'}</div>
+    <div class="row-barcode">${p.barcode}</div>
+    <div class="row-price">S/ ${p.precio.toFixed(2)}</div>
+    <div class="row-stock" style="color:${p.stock > 0 ? 'var(--success)' : 'var(--muted)'}">
+      ${p.stock > 0 ? `✓ ${p.stock}` : '— 0'}
+    </div>
+  </div>`;
+}
+
+// ─── SELECT ───────────────────────────────────────────────────────────────────
+function toggleSelect(barcode, e) {
+  if (e && (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON')) return;
+  if (selectedBarcodes.has(barcode)) selectedBarcodes.delete(barcode);
+  else selectedBarcodes.add(barcode);
+  renderProducts();
+}
+
+function selectAllVisible() {
+  getFiltered().forEach(p => selectedBarcodes.add(p.barcode));
+  renderProducts();
+}
+
+function deselectAll() {
+  selectedBarcodes.clear();
+  renderProducts();
+}
+
+// ─── CART ─────────────────────────────────────────────────────────────────────
+function getQtyInput(barcode) {
+  const el = $(`qty-${barcode}`);
+  return el ? Math.max(1, parseInt(el.value) || 1) : 1;
+}
+
+// FIX BUG 6: changeQty actualiza también el carrito si el producto ya está en él
+function changeQty(barcode, delta) {
+  const el = $(`qty-${barcode}`);
+  if (!el) return;
+  const newVal = Math.max(1, (parseInt(el.value) || 1) + delta);
+  el.value = newVal;
+  if (cart[barcode]) {
+    cart[barcode].qty = newVal;
+    renderCart();
+  }
+}
+
+// FIX BUG 2: setQtyCard — para el input de la tarjeta. Si ya está en carrito, sincroniza.
+function setQtyCard(barcode, val) {
+  const newVal = Math.max(1, parseInt(val) || 1);
+  if (cart[barcode]) {
+    cart[barcode].qty = newVal;
+    renderCart();
+  }
+}
+
+function addToCart(barcode) {
+  const p = productIndex.get(barcode);
+  if (!p) return;
+  const qty = getQtyInput(barcode);
+  const isNew = !cart[barcode];
+  if (cart[barcode]) cart[barcode].qty += qty;
+  else cart[barcode] = { product: p, qty };
+  renderCart();
+  // Animación del botón del header
+  const btn = document.querySelector('.print-list-btn');
+  btn.classList.remove('has-items');
+  void btn.offsetWidth;
+  btn.classList.add('has-items');
+  showToast(isNew ? `✓ "${p.base}" agregada a la lista` : `✓ +${qty} etiquetas de "${p.base}"`);
+}
+
+function addFilteredToCart() {
+  const filtered = getFiltered();
+  if (filtered.length === 0) { showToast('⚠️ No hay prendas visibles para agregar'); return; }
+  let nuevas = 0, actualizadas = 0;
+  filtered.forEach(p => {
+    if (!p.barcode) return;
+    const qty = p.stock > 0 ? p.stock : 1;
+    if (cart[p.barcode]) { cart[p.barcode].qty += qty; actualizadas++; }
+    else { cart[p.barcode] = { product: p, qty }; nuevas++; }
+  });
+  renderCart();
+  const msg = nuevas > 0 && actualizadas > 0
+    ? `✓ ${nuevas} nuevas + ${actualizadas} actualizadas en la lista`
+    : nuevas > 0
+    ? `✓ ${nuevas} prenda${nuevas !== 1 ? 's' : ''} agregada${nuevas !== 1 ? 's' : ''} a la lista`
+    : `✓ ${actualizadas} prenda${actualizadas !== 1 ? 's' : ''} actualizadas en la lista`;
+  showToast(msg);
+}
+
+function removeFromCart(barcode) {
+  delete cart[barcode];
+  renderCart();
+  showToast('Prenda eliminada de la lista');
+}
+
+// FIX BUG 3 + BUG 8: clearCart pide confirmación y solo re-renderiza si es necesario
+function clearCartConfirm() {
+  if (Object.keys(cart).length === 0) { showToast('La lista ya está vacía'); return; }
+  if (!confirm('¿Segura que quieres vaciar toda la lista de impresión?')) return;
+  cart = {};
+  const hadSelected = selectedBarcodes.size > 0;
+  selectedBarcodes.clear();
+  renderCart();
+  if (hadSelected) renderProducts();
+  showToast('Lista vaciada');
+}
+
+// Orden de tallas (XS < S < M < L < XL < XXL). Tallas desconocidas van al final.
+const TALLA_ORDER = { 'XS': 1, 'S': 2, 'M': 3, 'L': 4, 'XL': 5, 'XXL': 6 };
+function tallaRank(t) {
+  return TALLA_ORDER[(t || '').toUpperCase().trim()] ?? 99;
+}
+
+// Ordena los items por modelo (nombre) alfabético, luego por talla, luego por color.
+function sortCartItems(items) {
+  return items.slice().sort((a, b) => {
+    // 1) Modelo (nombre base) alfabético
+    const ba = (a.product.base || '').toLowerCase();
+    const bb = (b.product.base || '').toLowerCase();
+    if (ba !== bb) return ba.localeCompare(bb, 'es');
+    // 2) Dentro del mismo modelo, por talla (XS < S < M < L < XL)
+    const ra = tallaRank(a.product.talla), rb = tallaRank(b.product.talla);
+    if (ra !== rb) return ra - rb;
+    // 3) Dentro de la misma talla, por color alfabético
+    const ca = (a.product.color || '').toLowerCase();
+    const cb = (b.product.color || '').toLowerCase();
+    return ca.localeCompare(cb, 'es');
+  });
+}
+
+function renderCart() {
+  const items = sortCartItems(Object.values(cart));
+  elCartCount.textContent = items.length;
+
+  if (items.length === 0) {
+    elCartItems.innerHTML = `<div class="cart-empty">
+      <div class="cart-empty-icon">🏷️</div>
+      <div class="cart-empty-text">Tu lista está vacía</div>
+      <div class="cart-empty-hint">Busca una prenda y presiona "🏷️ Agregar"</div>
+    </div>`;
+    elTotalSkus.textContent   = '0';
+    elTotalLabels.textContent = '0';
+    return;
+  }
+
+  elCartItems.innerHTML = items.map(({ product: p, qty }) => `
+    <div class="cart-item">
+      <div>
+        <div class="ci-name">${p.base}</div>
+        <div class="ci-meta">${[p.color, p.talla].filter(Boolean).join(' · ')} &nbsp;·&nbsp; S/ ${p.precio.toFixed(2)}</div>
+        <div class="ci-barcode">${p.barcode}</div>
+      </div>
+      <div class="ci-right">
+        <div class="ci-qty">
+          <button class="ci-qty-btn" onclick="adjustCartQty('${p.barcode}',-1)" title="Menos">−</button>
+          <span class="ci-qty-num">${qty}</span>
+          <button class="ci-qty-btn" onclick="adjustCartQty('${p.barcode}',1)" title="Más">+</button>
+        </div>
+        <div class="ci-qty-label">${qty === 1 ? '1 etiqueta' : qty + ' etiquetas'}</div>
+        <button class="ci-remove" onclick="removeFromCart('${p.barcode}')">✕ Quitar</button>
+      </div>
+    </div>`).join('');
+
+  let totalLabels = 0;
+  for (const { qty } of items) totalLabels += qty;
+  elTotalSkus.textContent   = items.length;
+  elTotalLabels.textContent = totalLabels;
+}
+
+function adjustCartQty(barcode, delta) {
+  if (!cart[barcode]) return;
+  cart[barcode].qty = Math.max(1, cart[barcode].qty + delta);
+  renderCart();
+}
+
+function toggleCart() {
+  const isOpening = !$('cart-panel').classList.contains('open');
+  $('cart-panel').classList.toggle('open');
+  $('cart-overlay').classList.toggle('open');
+  document.body.classList.toggle('panel-open', isOpening);
+}
+
+// ─── FILTER CONTROLS ─────────────────────────────────────────────────────────
+function setStockFilter(val, btn) {
+  stockFilter = val;
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  renderProducts();
+}
+
+function clearFilters() {
+  $('search-input').value = '';
+  $('cat-filter').value   = '';
+  $('color-filter').value = '';
+  $('talla-filter').value = '';
+  stockFilter = 'instock';
+  // Activa "Con stock" (índice 1) y desactiva las demás
+  document.querySelectorAll('.pill').forEach((p, i) => p.classList.toggle('active', i === 1));
+  renderProducts();
+  showToast('Filtros limpiados');
+}
+
+function setView(v, btn) {
+  currentView = v;
+  document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderProducts();
+}
+
+// ─── FILE UPLOAD ──────────────────────────────────────────────────────────────
+function loadFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const wb   = XLSX.read(e.target.result, { type: 'binary' });
+      const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+      const parsed = [];
+      for (const row of rows) {
+        const nombre  = String(row['Nombre'] || '').trim();
+        const barcode = String(row['C. barras'] || row['C.barras'] || '').trim();
+        if (!nombre || !barcode || barcode === 'nan') continue;
+        const stock  = parseInt(row['Stock']  || 0) || 0;
+        // FIX BUG 7: garantizar que precio sea siempre un número válido
+        const precio = Math.max(0, parseFloat(row['Precio venta'] || row['Precio'] || 0) || 0);
+        const parts = nombre.split(' - ');
+        let base, color, talla;
+        if (parts.length >= 3) {
+          talla = parts.pop().trim();
+          color = parts.pop().trim();
+          base  = parts.join(' - ').trim();
+        } else if (parts.length === 2) {
+          [base, color] = parts.map(s => s.trim());
+          talla = '';
+        } else {
+          base = nombre; color = ''; talla = '';
+        }
+        parsed.push({ nombre, base, color, talla, barcode, stock, precio });
+      }
+      if (parsed.length === 0) { showToast('⚠️ No se encontraron prendas en el archivo'); return; }
+      PRODUCTS = parsed;
+      productIndex = new Map(PRODUCTS.map(p => [p.barcode, p]));
+      cart = {};
+      selectedBarcodes.clear();
+      $('cat-filter').innerHTML   = '<option value="">— Todas las prendas —</option>';
+      $('color-filter').innerHTML = '<option value="">— Todos los colores —</option>';
+      $('talla-filter').innerHTML = '<option value="">— Todas las tallas —</option>';
+      buildFilters();
+      updateStats();
+      renderProducts();
+      renderCart();
+      // FIX BUG 5: resetear el input para poder cargar el mismo archivo de nuevo
+      event.target.value = '';
+      showToast(`✓ ${parsed.length} prendas cargadas desde "${file.name}"`);
+    } catch(err) {
+      showToast('⚠️ No se pudo leer el archivo. ¿Es un Excel (.xlsx)?');
+      console.error(err);
+    }
+  };
+  reader.readAsBinaryString(file);
+}
+
+// ─── DISEÑO DE ETIQUETA ──────────────────────────────────────────────────────
+// Configuración por defecto. Cada elemento: visible, tamaño en pt, orden.
+const DEFAULT_DESIGN = {
+  elements: [
+    { id: 'brand', label: 'Logo DALIZA',     visible: true, size: 5.5, hasSize: true  },
+    { id: 'name',  label: 'Nombre prenda',   visible: true, size: 7,   hasSize: true  },
+    { id: 'attrs', label: 'Color y talla',   visible: true, size: 6,   hasSize: true  },
+    { id: 'barcode', label: 'Código de barras', visible: true, size: null, hasSize: false },
+    { id: 'code',  label: 'Texto del código',visible: true, size: 5.5, hasSize: true  },
+    { id: 'price', label: 'Precio',          visible: true, size: 8,   hasSize: true  },
+  ]
+};
+
+let labelDesign = loadDesign();
+
+function loadDesign() {
+  try {
+    const saved = localStorage.getItem('daliza_label_design');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // Validar estructura
+      if (parsed.elements && Array.isArray(parsed.elements) && parsed.elements.length === 6) {
+        return parsed;
+      }
+    }
+  } catch(e) {}
+  return JSON.parse(JSON.stringify(DEFAULT_DESIGN));
+}
+
+function saveDesign() {
+  try {
+    localStorage.setItem('daliza_label_design', JSON.stringify(labelDesign));
+  } catch(e) {}
+}
+
+function applyDesignVars() {
+  // Aplica los tamaños como variables CSS globales (afectan vista previa Y impresión)
+  const root = document.documentElement;
+  labelDesign.elements.forEach(el => {
+    if (el.hasSize) root.style.setProperty(`--lbl-${el.id}-size`, el.size + 'pt');
+  });
+}
+applyDesignVars();
+
+// Genera el HTML de UNA etiqueta según el diseño actual y un producto dado.
+// Usado tanto en vista previa como en impresión real.
+function buildLabelHTML(p, includeBarcode = true) {
+  const attrs = [p.color, p.talla].filter(Boolean).join(' · ');
+  const parts = [];
+  for (const el of labelDesign.elements) {
+    if (!el.visible) continue;
+    switch (el.id) {
+      case 'brand':
+        parts.push(`<div class="label-brand">DALIZA</div>`);
+        break;
+      case 'name':
+        parts.push(`<div class="label-name">${escapeHTML(p.base)}</div>`);
+        break;
+      case 'attrs':
+        if (attrs) parts.push(`<div class="label-attrs">${escapeHTML(attrs)}</div>`);
+        break;
+      case 'barcode':
+        if (includeBarcode) parts.push(`<div class="label-barcode-svg">${makeCode128SVG(p.barcode, 212, 42)}</div>`);
+        break;
+      case 'code':
+        parts.push(`<div class="label-code-text">${escapeHTML(p.barcode)}</div>`);
+        break;
+      case 'price':
+        parts.push(`<div class="label-price">S/ ${p.precio.toFixed(2)}</div>`);
+        break;
+    }
+  }
+  return `<div class="label">${parts.join('')}</div>`;
+}
+
+function escapeHTML(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ─── MODAL EDITOR ─────────────────────────────────────────────────────────────
+// Producto de muestra para la vista previa
+const SAMPLE_PRODUCT = {
+  base: 'Blusa Manga Estampado',
+  color: 'Marrón',
+  talla: 'M',
+  barcode: 'BL010MMARRON',
+  precio: 50.00
+};
+
+function openDesignEditor() {
+  buildDesignControls();
+  updateDesignPreview();
+  $('design-overlay').classList.add('open');
+  document.body.classList.add('panel-open');
+}
+
+function closeDesignEditor() {
+  $('design-overlay').classList.remove('open');
+  // Solo quitar panel-open si el carrito tampoco está abierto
+  if (!$('cart-panel').classList.contains('open')) {
+    document.body.classList.remove('panel-open');
+  }
+  saveDesign();
+}
+
+function resetDesign() {
+  if (!confirm('¿Restablecer el diseño original de la etiqueta?')) return;
+  labelDesign = JSON.parse(JSON.stringify(DEFAULT_DESIGN));
+  applyDesignVars();
+  buildDesignControls();
+  updateDesignPreview();
+  saveDesign();
+  showToast('Diseño restablecido');
+}
+
+function buildDesignControls() {
+  // Toggles
+  const tEl = $('design-toggles');
+  tEl.innerHTML = labelDesign.elements.map((el, i) => `
+    <div class="design-toggle ${el.visible ? 'active' : ''}" onclick="toggleElement(${i})">
+      <span class="design-toggle-label">${el.label}</span>
+      <span class="design-toggle-switch"></span>
+    </div>
+  `).join('');
+
+  // Sliders de tamaño (solo elementos visibles que tienen hasSize)
+  const sEl = $('design-sliders');
+  sEl.innerHTML = labelDesign.elements
+    .map((el, i) => ({ el, i }))
+    .filter(({ el }) => el.hasSize && el.visible)
+    .map(({ el, i }) => `
+      <div class="design-slider-row">
+        <span class="design-slider-label">${el.label}</span>
+        <span class="design-slider-value">${el.size}pt</span>
+        <input type="range" class="design-slider" min="4" max="14" step="0.5"
+               value="${el.size}" oninput="changeElementSize(${i}, this.value)">
+      </div>
+    `).join('');
+  if (!sEl.innerHTML) sEl.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:10px">Activa elementos para ajustar su tamaño</div>';
+
+  // Orden
+  const oEl = $('design-order');
+  oEl.innerHTML = labelDesign.elements.map((el, i) => `
+    <div class="design-order-item">
+      <span class="design-order-num">${i + 1}</span>
+      <span class="design-order-label">${el.label}${el.visible ? '' : ' <span style="color:var(--muted);font-size:11px">(oculto)</span>'}</span>
+      <button class="design-order-btn" onclick="moveElement(${i}, -1)" ${i === 0 ? 'disabled' : ''} title="Subir">↑</button>
+      <button class="design-order-btn" onclick="moveElement(${i}, 1)"  ${i === labelDesign.elements.length - 1 ? 'disabled' : ''} title="Bajar">↓</button>
+    </div>
+  `).join('');
+}
+
+function toggleElement(idx) {
+  labelDesign.elements[idx].visible = !labelDesign.elements[idx].visible;
+  buildDesignControls();
+  updateDesignPreview();
+  saveDesign();
+}
+
+function changeElementSize(idx, val) {
+  labelDesign.elements[idx].size = parseFloat(val);
+  applyDesignVars();
+  // Actualiza solo el value text del slider sin rebuild completo (mejor UX)
+  const valueSpan = document.querySelectorAll('.design-slider-row')[
+    [...labelDesign.elements].slice(0, idx + 1).filter(e => e.hasSize && e.visible).length - 1
+  ]?.querySelector('.design-slider-value');
+  if (valueSpan) valueSpan.textContent = val + 'pt';
+  updateDesignPreview();
+  saveDesign();
+}
+
+function moveElement(idx, delta) {
+  const newIdx = idx + delta;
+  if (newIdx < 0 || newIdx >= labelDesign.elements.length) return;
+  const arr = labelDesign.elements;
+  [arr[idx], arr[newIdx]] = [arr[newIdx], arr[idx]];
+  buildDesignControls();
+  updateDesignPreview();
+  saveDesign();
+}
+
+function updateDesignPreview() {
+  $('design-preview-label').innerHTML = buildLabelHTML(SAMPLE_PRODUCT);
+}
+
+
+// ─── BARCODE 128 ──────────────────────────────────────────────────────────────
+const CODE128_TABLE = {
+  ' ':0,'!':1,'"':2,'#':3,'$':4,'%':5,'&':6,"'":7,'(':8,')':9,'*':10,'+':11,
+  ',':12,'-':13,'.':14,'/':15,'0':16,'1':17,'2':18,'3':19,'4':20,'5':21,
+  '6':22,'7':23,'8':24,'9':25,':':26,';':27,'<':28,'=':29,'>':30,'?':31,
+  '@':32,'A':33,'B':34,'C':35,'D':36,'E':37,'F':38,'G':39,'H':40,'I':41,
+  'J':42,'K':43,'L':44,'M':45,'N':46,'O':47,'P':48,'Q':49,'R':50,'S':51,
+  'T':52,'U':53,'V':54,'W':55,'X':56,'Y':57,'Z':58,'[':59,'\\':60,']':61,
+  '^':62,'_':63,'`':64,'a':65,'b':66,'c':67,'d':68,'e':69,'f':70,'g':71,
+  'h':72,'i':73,'j':74,'k':75,'l':76,'m':77,'n':78,'o':79,'p':80,'q':81,
+  'r':82,'s':83,'t':84,'u':85,'v':86,'w':87,'x':88,'y':89,'z':90,'{':91,
+  '|':92,'}':93,'~':94
+};
+const CODE128_PATTERNS = [
+  '11011001100','11001101100','11001100110','10010011000','10010001100',
+  '10001001100','10011001000','10011000100','10001100100','11001001000',
+  '11001000100','11000100100','10110011100','10011011100','10011001110',
+  '10111001100','10011101100','10011100110','11001110010','11001011100',
+  '11001001110','11011100100','11001110100','11101101110','11101001100',
+  '11100101100','11100100110','11101100100','11100110100','11100110010',
+  '11011011000','11011000110','11000110110','10100011000','10001011000',
+  '10001000110','10110001000','10001101000','10001100010','11010001000',
+  '11000101000','11000100010','10110111000','10110001110','10001101110',
+  '10111011000','10111000110','10001110110','11101110110','11010001110',
+  '11000101110','11011101000','11011100010','11011101110','11101011000',
+  '11101000110','11100010110','11101101000','11101100010','11100011010',
+  '11101111010','11001000010','11110001010','10100110000','10100001100',
+  '10010110000','10010000110','10000101100','10000100110','10110010000',
+  '10110000100','10011010000','10011000010','10000110100','10000110010',
+  '11000010010','11001010000','11110111010','11000010100','10001111010',
+  '10100111100','10010111100','10010011110','10111100100','10011110100',
+  '10011110010','11110100100','11110010100','11110010010','11011011110',
+  '11011110110','11110110110','10101111000','10100011110','10001011110',
+  '10111101000','10111100010','11110101000','11110100010','10111011110',
+  '10111101110','11101011110','11110101110','11010000100','11010010000',
+  '11010011100','1100011101011'
+];
+
+const svgCache = new Map();
+function makeCode128SVG(text, w, h) {
+  const key = `${text}|${w}|${h}`;
+  if (svgCache.has(key)) return svgCache.get(key);
+  const cleanText = text.replace(/[^\x20-\x7E]/g, '').substring(0, 40);
+  if (!cleanText) return '<svg></svg>';
+  const START_B = 104, STOP = 106;
+  const codes = [START_B];
+  for (const c of cleanText) codes.push(CODE128_TABLE[c] ?? 0);
+  let checksum = START_B;
+  for (let i = 1; i < codes.length; i++) checksum = (checksum + i * codes[i]) % 103;
+  codes.push(checksum, STOP);
+  let bars = '';
+  const last = codes.length - 1;
+  for (let i = 0; i <= last; i++)
+    bars += i === last ? '1100011101011' : (CODE128_PATTERNS[codes[i]] || '');
+  bars += '11';
+  const quiet = 10, barW = (w - quiet * 2) / bars.length;
+  let paths = '', x = quiet;
+  for (const bit of bars) {
+    if (bit === '1') paths += `M${x.toFixed(2)},0H${(x+barW).toFixed(2)}V${h}H${x.toFixed(2)}Z`;
+    x += barW;
+  }
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}"><path d="${paths}" fill="#000"/></svg>`;
+  svgCache.set(key, svg);
+  return svg;
+}
+
+// ─── PRINT ────────────────────────────────────────────────────────────────────
+function printLabels() {
+  prepareLabelsForPrint();
+  if ($('label-sheet').children.length === 0) return;
+  setTimeout(() => {
+    window.print();
+    setTimeout(() => { $('print-area').style.display = 'none'; }, 500);
+  }, 150);
+}
+
+// ─── EXPORTAR EXCEL DE CÓDIGOS ───────────────────────────────────────────────
+function exportBarcodesExcel() {
+  const items = sortCartItems(Object.values(cart));
+  if (items.length === 0) { showToast('⚠️ La lista está vacía'); return; }
+
+  // Una sola columna con encabezado, código repetido según cantidad, en orden de la lista
+  const rows = [['Código de barras']];
+  for (const { product: p, qty } of items) {
+    for (let i = 0; i < qty; i++) rows.push([p.barcode]);
+  }
+
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = [{ wch: 22 }]; // ancho de columna
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Códigos');
+
+  const fecha = new Date().toISOString().slice(0, 10);
+  XLSX.writeFile(wb, `DALIZA_codigos_${fecha}.xlsx`);
+
+  const total = rows.length - 1;
+  showToast(`✓ Excel descargado: ${total} código${total !== 1 ? 's' : ''}`);
+}
+
+function prepareLabelsForPrint() {
+  const items = sortCartItems(Object.values(cart));
+  if (items.length === 0) { showToast('⚠️ La lista de impresión está vacía'); return; }
+  const parts = [];
+  for (const { product: p, qty } of items) {
+    const labelHTML = buildLabelHTML(p, true);
+    for (let i = 0; i < qty; i++) parts.push(labelHTML);
+  }
+  $('label-sheet').innerHTML = parts.join('');
+  $('print-area').style.display = 'block';
+}
+
+// ─── TOAST ────────────────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  elToast.textContent = msg;
+  elToast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => elToast.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
