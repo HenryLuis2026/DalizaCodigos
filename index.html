@@ -845,6 +845,115 @@
   /* TABLET (701px – 900px): sidebar más estrecho */
   @media (min-width: 701px) and (max-width: 900px) {
     .layout-main { grid-template-columns: 240px 1fr; }
+  }
+
+  /* ── TABS ── */
+  .tabbar { display: flex; gap: 4px; background: rgba(255,255,255,0.06); padding: 4px; border-radius: 8px; }
+  .tab-btn {
+    background: transparent; border: none; color: var(--muted);
+    font-family: 'Jost', sans-serif; font-size: 13px; font-weight: 500;
+    letter-spacing: 1px; text-transform: uppercase; padding: 8px 16px;
+    border-radius: 6px; cursor: pointer; transition: all .18s; white-space: nowrap;
+  }
+  .tab-btn:hover { color: var(--cream); }
+  .tab-btn.active { background: var(--gold); color: var(--ink); font-weight: 600; }
+
+  /* ── GENERADOR (paleta DALIZA) ── */
+  #view-generador { padding: 0 0 3rem; }
+  .gv-container { max-width: 980px; margin: 0 auto; padding: 1.75rem 1.5rem; }
+  .gv-intro { margin-bottom: 1.25rem; }
+  .gv-intro-title { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 600; color: var(--ink); letter-spacing: .5px; }
+  .gv-intro-sub { font-size: 13.5px; color: var(--muted); max-width: 720px; margin-top: 4px; line-height: 1.5; }
+  .gv-section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; }
+  .gv-section-title { font-size: 11px; font-weight: 600; color: var(--gold); text-transform: uppercase; letter-spacing: .12em; margin-bottom: 1rem; }
+  .gv-field-row { display: grid; gap: 12px; margin-bottom: 12px; }
+  .gv-f2 { grid-template-columns: 1fr 1fr; }
+  .gv-f3 { grid-template-columns: 2fr 1fr 1fr; }
+  .gv-f4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+  #view-generador label { display: block; font-size: 12.5px; color: var(--muted); margin-bottom: 4px; }
+  #view-generador input[type=text], #view-generador input[type=number], #view-generador select {
+    width: 100%; height: 40px; padding: 0 11px; border: 1px solid var(--border); border-radius: 7px;
+    background: var(--cream); color: var(--ink); font-size: 14px; font-family: 'Jost', sans-serif; transition: border-color .15s, box-shadow .15s;
+  }
+  #view-generador input:focus, #view-generador select:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(184,150,90,.18); background: #fff; }
+  .gv-hint { font-size: 12px; margin-top: 5px; min-height: 16px; }
+  .gv-hint.known { color: var(--success); }
+  .gv-hint.newm { color: var(--gold); }
+  .gv-comodin-toggle { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink); margin-top: 6px; cursor: pointer; }
+  .gv-comodin-toggle input { width: auto; height: auto; }
+  .gv-comodin-toggle code { background: var(--cream); border: 1px solid var(--border); padding: 1px 6px; border-radius: 4px; font-size: 12px; color: var(--gold); }
+  .gv-chips-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+  .gv-chip {
+    display: flex; align-items: center; gap: 6px; padding: 6px 11px; border-radius: 20px;
+    border: 1px solid var(--border); background: var(--cream); font-size: 13px; cursor: pointer;
+    color: var(--ink); user-select: none; transition: all .12s; font-family: 'Jost', sans-serif;
+  }
+  .gv-chip:hover { border-color: var(--gold-light); }
+  .gv-chip.selected { background: var(--gold); border-color: var(--gold); color: var(--ink); font-weight: 600; }
+  .gv-chip .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; border: 1px solid rgba(0,0,0,.12); }
+  .gv-add-btn {
+    display: inline-flex; align-items: center; gap: 6px; padding: 6px 11px; border-radius: 20px;
+    border: 1px dashed var(--gold-light); background: transparent; font-size: 13px; cursor: pointer;
+    color: var(--muted); font-family: 'Jost', sans-serif; transition: all .12s;
+  }
+  .gv-add-btn:hover { border-color: var(--gold); color: var(--ink); }
+  .gv-add-input-row { display: flex; gap: 8px; margin-top: 8px; }
+  .gv-add-input-row input { flex: 1; }
+  .gv-small-btn { height: 40px; padding: 0 14px; border: 1px solid var(--border); border-radius: 7px; background: var(--cream); color: var(--ink); font-size: 13px; cursor: pointer; font-family: 'Jost', sans-serif; white-space: nowrap; transition: background .12s; }
+  .gv-small-btn:hover { background: #fff; }
+  .gv-primary-btn {
+    width: 100%; height: 48px; background: var(--ink); color: var(--cream); border: none; border-radius: 8px;
+    font-size: 15px; font-weight: 500; letter-spacing: .5px; cursor: pointer; font-family: 'Jost', sans-serif;
+    margin-bottom: 1rem; transition: background .15s, transform .1s;
+  }
+  .gv-primary-btn:hover { background: #2A2420; }
+  .gv-primary-btn:active { transform: scale(.99); }
+  .gv-inline-primary { width: auto; margin-bottom: 0; background: var(--gold); color: var(--ink); font-weight: 600; }
+  .gv-inline-primary:hover { background: var(--gold-light); }
+  .gv-secondary-btn {
+    height: 48px; padding: 0 18px; background: var(--surface); border: 1px solid var(--gold-light); border-radius: 8px;
+    font-size: 14px; font-weight: 500; cursor: pointer; color: var(--ink); font-family: 'Jost', sans-serif;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: background .12s;
+  }
+  .gv-secondary-btn:hover { background: var(--cream); }
+  .gv-download-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 1rem; align-items: center; }
+  .gv-matrix-col-title { font-size: 12px; font-weight: 600; color: var(--ink); margin-bottom: 8px; padding: 7px 11px; background: var(--cream); border-radius: 7px; border: 1px solid var(--border); }
+  .gv-matrix-wrap { overflow-x: auto; }
+  .gv-mtable { border-collapse: collapse; font-size: 13px; width: 100%; }
+  .gv-mtable th { padding: 7px 10px; font-size: 11px; font-weight: 600; color: var(--muted); background: var(--cream); border: 1px solid var(--border); white-space: nowrap; text-align: center; }
+  .gv-mtable th.lh { text-align: left; min-width: 120px; }
+  .gv-mtable td { border: 1px solid var(--border); padding: 4px 6px; text-align: center; background: var(--surface); }
+  .gv-mtable td.color-cell { background: var(--cream); text-align: left; padding: 6px 10px; white-space: nowrap; }
+  .gv-color-label-inner { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 500; }
+  .gv-qty-input { width: 58px; height: 34px; text-align: center; padding: 0 !important; }
+  .gv-qty-input.has-val { background: var(--gold) !important; border-color: var(--gold) !important; color: var(--ink); font-weight: 600; }
+  .gv-rowtot { background: var(--cream); font-size: 12px; font-weight: 600; padding: 6px 10px; }
+  .gv-tot-pill { display: inline-block; padding: 2px 9px; border-radius: 10px; font-size: 11px; background: var(--gold-light); color: var(--ink); }
+  .gv-queue-item { display: flex; align-items: flex-start; justify-content: space-between; padding: 11px 14px; background: var(--cream); border-radius: 8px; margin-bottom: 6px; }
+  .gv-qi-name { font-size: 14px; font-weight: 600; color: var(--ink); }
+  .gv-qi-meta { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .gv-remove-btn { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 22px; padding: 0 4px; line-height: 1; flex-shrink: 0; }
+  .gv-remove-btn:hover { color: var(--danger); }
+  .gv-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 1rem; }
+  .gv-stat { background: var(--cream); border-radius: 8px; padding: 13px 15px; }
+  .gv-stat-num { font-size: 26px; font-weight: 600; color: var(--ink); font-family: 'Cormorant Garamond', serif; }
+  .gv-stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: .06em; }
+  .gv-table-wrap { overflow-x: auto; max-height: 360px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; }
+  table.gv-preview { width: 100%; border-collapse: collapse; font-size: 12px; }
+  table.gv-preview th { text-align: left; padding: 8px 10px; font-size: 10.5px; font-weight: 600; color: var(--muted); background: var(--cream); border-bottom: 1px solid var(--border); white-space: nowrap; position: sticky; top: 0; text-transform: uppercase; letter-spacing: .04em; }
+  table.gv-preview td { padding: 6px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; color: var(--ink); }
+  table.gv-preview tr:last-child td { border-bottom: none; }
+  table.gv-preview tr:hover td { background: var(--cream); }
+  .gv-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; background: rgba(58,107,74,.14); color: var(--success); }
+  .gv-error-msg { color: var(--danger); font-size: 13px; padding: 9px 12px; background: rgba(155,58,58,.08); border-radius: 7px; margin-top: 8px; display: none; }
+
+  @media (max-width: 720px) {
+    .tabbar { order: 3; width: 100%; margin-top: 8px; }
+    header { flex-wrap: wrap; }
+    .gv-f3, .gv-f4, .gv-matrix-cols { grid-template-columns: 1fr !important; }
+    .gv-f2 { grid-template-columns: 1fr 1fr; }
+    .gv-stats { grid-template-columns: 1fr 1fr; }
+    .gv-download-row .gv-secondary-btn, .gv-download-row .gv-inline-primary { width: 100%; }
     .sidebar { padding: 16px 14px; }
     .cart-panel { width: 340px; }
     .product-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
@@ -857,18 +966,25 @@
 <header>
   <div>
     <div class="brand">D<span>a</span>liza</div>
-    <div class="header-sub">Imprimir Etiquetas</div>
+    <div class="header-sub" id="header-sub">Imprimir Etiquetas</div>
   </div>
+  <nav class="tabbar">
+    <button class="tab-btn active" id="tab-etiquetas" onclick="switchView('etiquetas')">Etiquetas</button>
+    <button class="tab-btn" id="tab-generador" onclick="switchView('generador')">Generar variantes</button>
+  </nav>
   <div class="header-actions">
-    <button class="design-btn" onclick="openDesignEditor()" title="Personalizar diseño de etiqueta">
+    <button class="design-btn" id="btn-design" onclick="openDesignEditor()" title="Personalizar diseño de etiqueta">
       🎨 <span class="lbl-text">Diseño etiqueta</span>
     </button>
-    <button class="print-list-btn" onclick="toggleCart()">
+    <button class="print-list-btn" id="btn-cart" onclick="toggleCart()">
       🖨️ Ver lista de impresión
       <span class="badge" id="cart-count">0</span>
     </button>
   </div>
 </header>
+
+<!-- ════════ VISTA ETIQUETAS ════════ -->
+<div id="view-etiquetas">
 
 <!-- Guía de 3 pasos siempre visible -->
 <div class="steps-banner">
@@ -983,6 +1099,148 @@
     <div id="product-container"></div>
   </main>
 </div>
+</div><!-- /view-etiquetas -->
+
+<!-- ════════ VISTA GENERADOR DE VARIANTES ════════ -->
+<div id="view-generador" style="display:none">
+  <div class="gv-container">
+
+    <div class="gv-intro">
+      <div class="gv-intro-title">Generador de variantes</div>
+      <div class="gv-intro-sub">Crea muchas variantes (color × talla) de golpe. Al escribir un modelo que ya existe, se autocompletan precio costo, precio venta y categoría, y los códigos siguen tu numeración real. Las prendas nuevas usan el formato con guiones.</div>
+    </div>
+
+    <!-- 1. DATOS -->
+    <div class="gv-section">
+      <div class="gv-section-title">datos del producto</div>
+      <div class="gv-field-row gv-f3">
+        <div>
+          <label>Nombre del producto</label>
+          <input type="text" id="gv-prod-name" placeholder="ej: Pantalón Lino" list="gv-model-list" autocomplete="off" oninput="gvOnNameInput()" onblur="gvFormatName()" onkeydown="if(event.key==='Enter'){event.preventDefault();gvFormatName();}">
+          <datalist id="gv-model-list"></datalist>
+          <div id="gv-model-hint" class="gv-hint"></div>
+        </div>
+        <div><label>Precio costo (S/.)</label><input type="number" id="gv-prod-cost" placeholder="55" min="0" step="0.01"></div>
+        <div><label>Precio venta (S/.)</label><input type="number" id="gv-prod-price" placeholder="80" min="0" step="0.01"></div>
+      </div>
+      <div class="gv-field-row gv-f4">
+        <div>
+          <label>Categoría</label>
+          <select id="gv-prod-cat">
+            <option>Pantalón</option><option>Blusa</option><option>Chaleco</option>
+            <option>Body</option><option>Chompa</option><option>Básico</option><option>Por Mayor</option>
+          </select>
+        </div>
+        <div>
+          <label>Afectación</label>
+          <select id="gv-prod-afect">
+            <option value="Gravado - Operación Onerosa">Gravado - Op. Onerosa</option>
+            <option value="Exonerado - Operación Onerosa">Exonerado - Op. Onerosa</option>
+            <option value="Exonerado - Transferencia gratuita">Exonerado - Trans. gratuita</option>
+            <option value="Inafecto - Operación Onerosa">Inafecto - Op. Onerosa</option>
+          </select>
+        </div>
+        <div><label>Stock mínimo</label><input type="number" id="gv-prod-stockmin" placeholder="0" min="0" step="1"></div>
+        <div><label>Marca (opcional)</label><input type="text" id="gv-prod-marca" placeholder=""></div>
+      </div>
+      <label class="gv-comodin-toggle">
+        <input type="checkbox" id="gv-comodin" onchange="gvToggleComodin()">
+        Tratar como <strong>modelo completo</strong> — genera 1 solo código <code id="gv-comodin-ex">…-V-PALE</code> (todas las tallas y colores)
+      </label>
+      <div id="gv-error-msg" class="gv-error-msg"></div>
+    </div>
+
+    <!-- 2. COLORES -->
+    <div class="gv-section gv-variants-only">
+      <div class="gv-section-title">colores</div>
+      <div class="gv-chips-grid" id="gv-colors-grid"></div>
+      <div style="margin-top:8px">
+        <div id="gv-color-add-area"><button class="gv-add-btn" onclick="gvShowAddColor()">+ agregar color</button></div>
+        <div id="gv-color-input-row" class="gv-add-input-row" style="display:none">
+          <input type="text" id="gv-new-color-input" placeholder="ej: Verde Esmeralda" onkeydown="if(event.key==='Enter')gvAddCustomColor()">
+          <button class="gv-small-btn" onclick="gvAddCustomColor()">Agregar</button>
+          <button class="gv-small-btn" onclick="gvHideAddColor()">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. TALLAS -->
+    <div class="gv-section gv-variants-only">
+      <div class="gv-section-title">tallas</div>
+      <div class="gv-chips-grid" id="gv-sizes-grid"></div>
+      <div style="margin-top:8px">
+        <div id="gv-size-add-area"><button class="gv-add-btn" onclick="gvShowAddSize()">+ agregar talla</button></div>
+        <div id="gv-size-input-row" class="gv-add-input-row" style="display:none">
+          <input type="text" id="gv-new-size-input" placeholder="ej: XXL" onkeydown="if(event.key==='Enter')gvAddCustomSize()">
+          <button class="gv-small-btn" onclick="gvAddCustomSize()">Agregar</button>
+          <button class="gv-small-btn" onclick="gvHideAddSize()">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. MATRIZ -->
+    <div class="gv-section gv-variants-only" id="gv-matrix-section" style="display:none">
+      <div class="gv-section-title">cantidades por almacén — matriz color × talla</div>
+      <div class="gv-matrix-cols" style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+        <div>
+          <div class="gv-matrix-col-title">📦 CC ACLLA (almacén principal)</div>
+          <div class="gv-matrix-wrap" id="gv-matrix-aclla"></div>
+        </div>
+        <div>
+          <div class="gv-matrix-col-title">📦 HBOLT (almacén secundario)</div>
+          <div class="gv-matrix-wrap" id="gv-matrix-hbolt"></div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-top:.75rem">Deja en blanco si no hay stock para esa variante.</div>
+    </div>
+
+    <!-- 4b. STOCK COMODÍN -->
+    <div class="gv-section" id="gv-comodin-stock" style="display:none">
+      <div class="gv-section-title">stock del modelo completo</div>
+      <div class="gv-field-row gv-f2">
+        <div><label>Stock CC ACLLA</label><input type="number" id="gv-comodin-aclla" placeholder="0" min="0" step="1"></div>
+        <div><label>Stock HBOLT</label><input type="number" id="gv-comodin-hbolt" placeholder="0" min="0" step="1"></div>
+      </div>
+    </div>
+
+    <button class="gv-primary-btn" onclick="gvAddProduct()">+ agregar producto a la lista</button>
+
+    <!-- 5. COLA -->
+    <div id="gv-queue-section" class="gv-section" style="display:none">
+      <div class="gv-section-title">productos en cola</div>
+      <div id="gv-product-queue"></div>
+    </div>
+
+    <!-- 6. PREVIEW -->
+    <div id="gv-preview-section" class="gv-section" style="display:none">
+      <div class="gv-section-title">vista previa</div>
+      <div class="gv-stats" id="gv-stats-row"></div>
+      <div class="gv-table-wrap">
+        <table class="gv-preview">
+          <thead><tr>
+            <th>Cód. barras</th><th>Código</th><th>Unidad</th><th>Nombre</th>
+            <th>P. costo</th><th>Afectación</th><th>Compra</th><th>Venta</th><th>Almacenable</th>
+            <th>Stock mín.</th><th>Marca</th><th>Stock CC ACLLA</th><th>Stock HBOLT</th>
+            <th>P. venta</th><th>Color</th><th>Talla</th><th>Categoría</th><th>Tienda</th>
+          </tr></thead>
+          <tbody id="gv-preview-body"></tbody>
+        </table>
+      </div>
+      <div class="gv-download-row">
+        <button class="gv-secondary-btn" onclick="gvDownloadExcel()">
+          ⬇️ Excel carga masiva (CM_Productos)
+        </button>
+        <button class="gv-secondary-btn" onclick="gvDownloadBarcodes()">
+          ⬇️ Excel códigos de barras (como Etiquetas)
+        </button>
+        <button class="gv-primary-btn gv-inline-primary" onclick="gvSendToLabels()">
+          🏷️ Enviar estas prendas a Etiquetas
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div><!-- /view-generador -->
 
 <!-- PANEL DE LISTA DE IMPRESIÓN -->
 <div class="cart-overlay" id="cart-overlay" onclick="toggleCart()"></div>
@@ -1102,6 +1360,7 @@ window.addEventListener('DOMContentLoaded', () => {
   buildFilters();
   renderProducts();
   updateStats();
+  gvRebuildFromProducts();
 });
 
 // ─── FILTERS ─────────────────────────────────────────────────────────────────
@@ -1431,6 +1690,8 @@ function loadFile(event) {
         const stock  = parseInt(row['Stock']  || 0) || 0;
         // FIX BUG 7: garantizar que precio sea siempre un número válido
         const precio = Math.max(0, parseFloat(row['Precio venta'] || row['Precio'] || 0) || 0);
+        const costo  = Math.max(0, parseFloat(row['Precio costo'] || 0) || 0);
+        const cinterno = String(row['C. interno'] || row['C.interno'] || barcode).trim();
         const parts = nombre.split(' - ');
         let base, color, talla;
         if (parts.length >= 3) {
@@ -1443,7 +1704,7 @@ function loadFile(event) {
         } else {
           base = nombre; color = ''; talla = '';
         }
-        parsed.push({ nombre, base, color, talla, barcode, stock, precio });
+        parsed.push({ nombre, base, color, talla, barcode, cinterno, stock, precio, costo });
       }
       if (parsed.length === 0) { showToast('⚠️ No se encontraron prendas en el archivo'); return; }
       PRODUCTS = parsed;
@@ -1457,6 +1718,7 @@ function loadFile(event) {
       updateStats();
       renderProducts();
       renderCart();
+      gvRebuildFromProducts();
       // FIX BUG 5: resetear el input para poder cargar el mismo archivo de nuevo
       event.target.value = '';
       showToast(`✓ ${parsed.length} prendas cargadas desde "${file.name}"`);
@@ -1772,6 +2034,541 @@ function showToast(msg) {
   elToast.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => elToast.classList.remove('show'), 3000);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  NAVEGACIÓN ENTRE VISTAS
+// ═══════════════════════════════════════════════════════════════════════════
+function switchView(v) {
+  const isEt = v === 'etiquetas';
+  document.getElementById('view-etiquetas').style.display = isEt ? '' : 'none';
+  document.getElementById('view-generador').style.display = isEt ? 'none' : '';
+  document.getElementById('tab-etiquetas').classList.toggle('active', isEt);
+  document.getElementById('tab-generador').classList.toggle('active', !isEt);
+  document.getElementById('header-sub').textContent = isEt ? 'Imprimir Etiquetas' : 'Generar variantes';
+  // El botón de diseño/lista solo aplica a Etiquetas
+  document.getElementById('btn-design').style.display = isEt ? '' : 'none';
+  document.getElementById('btn-cart').style.display = isEt ? '' : 'none';
+  if (!isEt) gvRebuildFromProducts();
+  window.scrollTo(0, 0);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  GENERADOR DE VARIANTES
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ── Catálogo base (paleta de colores con su hex para los chips) ──
+const GV_COLOR_HEX = {
+  'Negro':'#1a1a1a','Perla':'#f0ece0','Azul Marino':'#1b3a6b','Beige':'#d4b896','Gris':'#8c8c8c',
+  'Camello':'#c19a6b','Arena':'#e8d5b0','Vino':'#722f37','Celeste':'#87ceeb','Azul':'#4169e1',
+  'Rosado':'#ffb6c1','Verde Oliva':'#6b8e23','Marrón':'#8b4513','Lila':'#c8a2c8','Plata':'#c0c0c0',
+  'Maíz':'#f5d03c','Cocoa':'#5b3a29','Topo':'#9c8a78','Piedra':'#b8ada0','Rojo':'#b32d2d',
+  'Mostaza':'#d4a017','Melón':'#f1a06a','Verde Botella':'#0b3d2e','Ladrillo':'#a64b2a','Paleta':'#b8965a'
+};
+const GV_CATEGORY_PREFIX = { 'Pantalón':'PT','Blusa':'BL','Chaleco':'CH','Body':'BO','Chompa':'CM','Básico':'BS','Por Mayor':'PM' };
+// Primera palabra del nombre -> prefijo de código (clave sin tilde, minúscula)
+const GV_FIRSTWORD_PREFIX = {
+  'pantalon':'PT','blusa':'BL','camisa':'BL','chaleco':'CH','catania':'CH',
+  'chompa':'CM','cardigan':'CM','short':'SH','blazer':'BZ','conjunto':'CJ',
+  'body':'BO','basico':'BS'
+};
+// Primera palabra -> categoría del desplegable (mapeo a la más cercana). Short/Blazer/Conjunto no tienen cercana.
+const GV_FIRSTWORD_CATEGORY = {
+  'pantalon':'Pantalón','blusa':'Blusa','camisa':'Blusa','chaleco':'Chaleco','catania':'Chaleco',
+  'chompa':'Chompa','cardigan':'Chompa','body':'Body','basico':'Básico'
+};
+
+let gvSelColors = new Set(), gvSelSizes = new Set();
+let gvAllColors = [], gvAllSizes = [];
+let gvProducts = [], gvAllRows = [];
+let gvModels = {};          // baseLower -> {base, stem, prefix, num, dashed, costo, precio, cat}
+let gvWordDict = {};        // palabra sin tilde -> forma correcta del catálogo
+let gvPrefixMax = {};       // prefix -> max number used
+let gvActiveStem = null;    // stem resuelto para el nombre actual
+let gvActiveDashed = true;
+
+function gvClean(s){ return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]/g,'').toUpperCase(); }
+function gvSan(s){ return String(s).replace(/[^a-zA-Z0-9]/g,'_'); }
+
+// Color a formato largo (sin guiones): "Azul Marino" -> "AZULMARINO"
+function gvColorFull(color){ return gvClean(color); }
+// Color a 4 letras (con guiones): simple -> 4 primeras; compuesto -> 4 de la 2da palabra
+function gvColor4(color){
+  const words = String(color).trim().split(/\s+/);
+  const pick = words.length > 1 ? words[1] : words[0];
+  return gvClean(pick).slice(0,4);
+}
+function gvSizeCode(size){ return String(size).toUpperCase().replace(/\s/g,''); }
+
+// Construye el código de barras/interno según formato del modelo
+function gvBuildCode(stem, size, color, dashed){
+  const S = gvSizeCode(size);
+  if (dashed) return `${stem}-${S}-${gvColor4(color)}`;
+  return `${stem}${S}${gvColorFull(color)}`;
+}
+
+// Reconstruye el conocimiento del generador a partir de PRODUCTS (data + Excel)
+function gvRebuildFromProducts(){
+  gvModels = {}; gvPrefixMax = {};
+  const colorSet = new Set(), sizeSet = new Set();
+  gvWordDict = {};  // palabra sin tilde+minúscula -> forma correcta del catálogo
+  const learnWords = (text) => {
+    if (!text) return;
+    String(text).split(/[\s\-]+/).forEach(w => {
+      const word = w.trim(); if (word.length < 2) return;
+      const key = gvDeaccent(word.toLowerCase());
+      const hasAccent = word !== gvDeaccent(word);
+      if (!gvWordDict[key] || (hasAccent && gvWordDict[key] === gvDeaccent(gvWordDict[key]))) {
+        gvWordDict[key] = word;
+      }
+    });
+  };
+  const stemFmt = {};  // stem -> {dashed, base, samples}
+  PRODUCTS.forEach(p => {
+    if (p.color) colorSet.add(p.color);
+    if (p.talla) sizeSet.add(p.talla);
+    learnWords(p.base); learnWords(p.color);
+    const code = p.cinterno || p.barcode || '';
+    const m = String(code).match(/^([A-Za-z]+\d+)/);
+    if (!m) return;
+    let stem = m[1];
+    // normalizar typo conocido CH0003 -> CH003
+    const pm = stem.match(/^([A-Za-z]+)(\d+)$/);
+    const prefix = pm[1]; let num = parseInt(pm[2], 10);
+    stem = prefix + String(num).padStart(3, '0');
+    const dashed = String(code).includes('-');
+    if (!stemFmt[stem]) stemFmt[stem] = { dashed, base: p.base };
+    gvPrefixMax[prefix] = Math.max(gvPrefixMax[prefix] || 0, num);
+    const key = (p.base || '').toLowerCase();
+    if (!gvModels[key]) {
+      gvModels[key] = { base: p.base, stem, prefix, num, dashed,
+        costo: p.costo || 0, precio: p.precio || 0, cat: gvCategoryForPrefix(prefix) };
+    } else {
+      // completar precios si faltaban
+      if (!gvModels[key].costo && p.costo) gvModels[key].costo = p.costo;
+      if (!gvModels[key].precio && p.precio) gvModels[key].precio = p.precio;
+    }
+  });
+  // colores conocidos + paleta por defecto
+  Object.keys(GV_COLOR_HEX).forEach(c => colorSet.add(c));
+  gvAllColors = [...colorSet].sort((a,b)=>a.localeCompare(b,'es')).map(name => ({ name, hex: GV_COLOR_HEX[name] || '#b8965a' }));
+  ['XS','S','M','L','XL'].forEach(s => sizeSet.add(s));
+  const sizeOrder = ['XS','S','M','L','XL','XXL'];
+  gvAllSizes = [...sizeSet].sort((a,b)=>{
+    const ia = sizeOrder.indexOf(a), ib = sizeOrder.indexOf(b);
+    if (ia>=0 && ib>=0) return ia-ib; if (ia>=0) return -1; if (ib>=0) return 1;
+    return a.localeCompare(b);
+  });
+  // datalist de modelos
+  const dl = document.getElementById('gv-model-list');
+  if (dl) dl.innerHTML = Object.values(gvModels)
+    .sort((a,b)=>a.base.localeCompare(b.base,'es'))
+    .map(m => `<option value="${escapeHTML(m.base)}">`).join('');
+  gvRenderColors(); gvRenderSizes();
+}
+
+function gvCategoryForPrefix(prefix){
+  const inv = { PT:'Pantalón', BL:'Blusa', CH:'Chaleco', BO:'Body', CM:'Chompa', BS:'Básico', PM:'Por Mayor' };
+  return inv[prefix] || 'Pantalón';
+}
+
+function gvDeaccent(s){ return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+
+// Máximo número usado para un prefijo, contando el catálogo Y los productos en cola
+function gvUsedMaxForPrefix(prefix){
+  let max = gvPrefixMax[prefix] || 0;
+  gvProducts.forEach(p => {
+    let stem = p.stem;
+    if (!stem && p.code) { const mm = String(p.code).match(/^([A-Za-z]+\d+)/); if (mm) stem = mm[1]; }
+    if (!stem) return;
+    const mm = stem.match(/^([A-Za-z]+)(\d+)$/);
+    if (mm && mm[1] === prefix) max = Math.max(max, parseInt(mm[2], 10));
+  });
+  return max;
+}
+
+// Convierte a formato nombre propio. Recupera tildes solo de palabras del catálogo.
+function gvTitleCaseEs(str){
+  const minus = ['de','del','la','las','el','los','y','con','a','en','para','por','o','u'];
+  const words = str.trim().replace(/\s+/g,' ').split(' ');
+  return words.map((w,i) => {
+    if (!w) return w;
+    const key = gvDeaccent(w.toLowerCase());
+    if (gvWordDict[key]) return gvWordDict[key];          // forma correcta conocida (con tilde)
+    if (i > 0 && minus.includes(w.toLowerCase())) return w.toLowerCase(); // conectores en minúscula
+    return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();          // capitaliza, respeta tildes escritas
+  }).join(' ');
+}
+
+// Al salir del campo / Enter: existente queda igual, nuevo se pone en nombre propio
+function gvFormatName(){
+  const inp = document.getElementById('gv-prod-name'); if(!inp) return;
+  const trimmed = inp.value.trim().replace(/\s+/g,' ');
+  if (!trimmed) { inp.value = ''; gvOnNameInput(); return; }
+  const existing = Object.values(gvModels).find(m => m.base.toLowerCase() === trimmed.toLowerCase());
+  inp.value = existing ? existing.base : gvTitleCaseEs(trimmed);
+  gvOnNameInput();
+}
+
+// Autocompletado al escribir el nombre del modelo
+function gvOnNameInput(){
+  const name = document.getElementById('gv-prod-name').value.trim();
+  const hint = document.getElementById('gv-model-hint');
+  const key = name.toLowerCase();
+  const model = gvModels[key];
+  if (model) {
+    gvActiveStem = model.stem; gvActiveDashed = model.dashed;
+    if (model.costo) document.getElementById('gv-prod-cost').value = model.costo;
+    if (model.precio) document.getElementById('gv-prod-price').value = model.precio;
+    document.getElementById('gv-prod-cat').value = model.cat;
+    hint.className = 'gv-hint known';
+    hint.textContent = `✓ Modelo existente · raíz ${model.stem} · formato ${model.dashed ? 'con guiones' : 'sin guiones'} · se autocompletó precio y categoría`;
+  } else if (name) {
+    // ¿ya hay un modelo nuevo con este mismo nombre en la cola? -> reusar su raíz
+    const queued = gvProducts.find(p => p.name.toLowerCase() === name.toLowerCase());
+    if (queued) {
+      gvActiveStem = queued.stem || (String(queued.code||'').match(/^([A-Za-z]+\d+)/)||[])[1] || null;
+      gvActiveDashed = queued.dashed !== undefined ? queued.dashed : true;
+      const fwq = gvDeaccent(name.split(/\s+/)[0].toLowerCase());
+      if (GV_FIRSTWORD_CATEGORY[fwq]) document.getElementById('gv-prod-cat').value = GV_FIRSTWORD_CATEGORY[fwq];
+      hint.className = 'gv-hint newm';
+      hint.textContent = `★ Modelo nuevo (ya en cola) · raíz ${gvActiveStem} · formato con guiones`;
+      gvUpdateComodinExample(); return;
+    }
+    // el prefijo lo decide la PRIMERA PALABRA; si no se reconoce, la categoría seleccionada
+    const fw = gvDeaccent(name.split(/\s+/)[0].toLowerCase());
+    let prefix, byWord = false;
+    if (GV_FIRSTWORD_PREFIX[fw]) {
+      prefix = GV_FIRSTWORD_PREFIX[fw]; byWord = true;
+      if (GV_FIRSTWORD_CATEGORY[fw]) document.getElementById('gv-prod-cat').value = GV_FIRSTWORD_CATEGORY[fw];
+    } else {
+      const cat = document.getElementById('gv-prod-cat').value;
+      prefix = GV_CATEGORY_PREFIX[cat] || 'PT';
+    }
+    const next = gvUsedMaxForPrefix(prefix) + 1;
+    gvActiveStem = prefix + String(next).padStart(3, '0');
+    gvActiveDashed = true;
+    hint.className = 'gv-hint newm';
+    hint.textContent = byWord
+      ? `★ Modelo nuevo · "${name.split(/\s+/)[0]}" → ${prefix} · se asignará raíz ${gvActiveStem} · formato con guiones`
+      : `★ Modelo nuevo · raíz ${gvActiveStem} (según categoría) · formato con guiones`;
+  } else {
+    gvActiveStem = null; hint.textContent = ''; hint.className = 'gv-hint';
+  }
+  gvUpdateComodinExample();
+}
+
+function gvUpdateComodinExample(){
+  const ex = document.getElementById('gv-comodin-ex');
+  if (!ex) return;
+  const stem = gvActiveStem || 'PT001';
+  ex.textContent = `${stem}-V-PALE`;
+}
+
+function gvRenderColors(){
+  const g = document.getElementById('gv-colors-grid'); if(!g) return; g.innerHTML='';
+  gvAllColors.forEach(c => {
+    const b = document.createElement('button');
+    b.className = 'gv-chip' + (gvSelColors.has(c.name) ? ' selected' : '');
+    b.innerHTML = `<span class="dot" style="background:${c.hex}"></span>${c.name}`;
+    b.onclick = () => { gvSelColors.has(c.name) ? gvSelColors.delete(c.name) : gvSelColors.add(c.name); gvRenderColors(); gvRebuildMatrix(); };
+    g.appendChild(b);
+  });
+}
+function gvRenderSizes(){
+  const g = document.getElementById('gv-sizes-grid'); if(!g) return; g.innerHTML='';
+  gvAllSizes.forEach(s => {
+    const b = document.createElement('button');
+    b.className = 'gv-chip' + (gvSelSizes.has(s) ? ' selected' : '');
+    b.textContent = s;
+    b.onclick = () => { gvSelSizes.has(s) ? gvSelSizes.delete(s) : gvSelSizes.add(s); gvRenderSizes(); gvRebuildMatrix(); };
+    g.appendChild(b);
+  });
+}
+
+function gvShowAddColor(){ document.getElementById('gv-color-add-area').style.display='none'; document.getElementById('gv-color-input-row').style.display='flex'; document.getElementById('gv-new-color-input').focus(); }
+function gvHideAddColor(){ document.getElementById('gv-color-add-area').style.display=''; document.getElementById('gv-color-input-row').style.display='none'; document.getElementById('gv-new-color-input').value=''; }
+function gvAddCustomColor(){
+  const v = document.getElementById('gv-new-color-input').value.trim(); if(!v) return;
+  if(!gvAllColors.find(c=>c.name.toLowerCase()===v.toLowerCase())) gvAllColors.push({name:v, hex:'#b8965a'});
+  gvSelColors.add(v); gvHideAddColor(); gvRenderColors(); gvRebuildMatrix();
+}
+function gvShowAddSize(){ document.getElementById('gv-size-add-area').style.display='none'; document.getElementById('gv-size-input-row').style.display='flex'; document.getElementById('gv-new-size-input').focus(); }
+function gvHideAddSize(){ document.getElementById('gv-size-add-area').style.display=''; document.getElementById('gv-size-input-row').style.display='none'; document.getElementById('gv-new-size-input').value=''; }
+function gvAddCustomSize(){
+  const v = document.getElementById('gv-new-size-input').value.trim(); if(!v) return;
+  if(!gvAllSizes.includes(v)) gvAllSizes.push(v);
+  gvSelSizes.add(v); gvHideAddSize(); gvRenderSizes(); gvRebuildMatrix();
+}
+
+function gvToggleComodin(){
+  const on = document.getElementById('gv-comodin').checked;
+  document.querySelectorAll('#view-generador .gv-variants-only').forEach(el => el.style.display = on ? 'none' : '');
+  document.getElementById('gv-comodin-stock').style.display = on ? '' : 'none';
+  if (on) document.getElementById('gv-matrix-section').style.display = 'none';
+  else gvRebuildMatrix();
+}
+
+function gvBuildMatrix(almacen, colors, sizes){
+  const wrap = document.getElementById('gv-matrix-'+almacen); wrap.innerHTML='';
+  const t = document.createElement('table'); t.className='gv-mtable';
+  const colorMap = gvAllColors.reduce((m,c)=>{m[c.name]=c;return m},{});
+  const thead = t.createTHead(); const hr = thead.insertRow();
+  const h0 = document.createElement('th'); h0.className='lh'; h0.textContent='Color \\ Talla'; hr.appendChild(h0);
+  sizes.forEach(s=>{ const th=document.createElement('th'); th.textContent=s; hr.appendChild(th); });
+  const hTot=document.createElement('th'); hTot.textContent='Total'; hr.appendChild(hTot);
+  const tbody=t.createTBody();
+  colors.forEach(color=>{
+    const row=tbody.insertRow();
+    const lc=row.insertCell(); lc.className='color-cell';
+    const hex=(colorMap[color]||{}).hex||'#b8965a';
+    lc.innerHTML=`<div class="gv-color-label-inner"><span class="dot" style="background:${hex}"></span>${color}</div>`;
+    sizes.forEach(size=>{
+      const cell=row.insertCell();
+      const inp=document.createElement('input');
+      inp.type='number'; inp.min='0'; inp.step='1'; inp.className='gv-qty-input'; inp.placeholder='0';
+      inp.id=`gvqty_${almacen}_${gvSan(color)}_${gvSan(size)}`;
+      inp.addEventListener('input',()=>{ inp.classList.toggle('has-val', inp.value!=='' && parseInt(inp.value)>0); gvUpdateRowTotal(almacen,color,sizes); });
+      cell.appendChild(inp);
+    });
+    const totCell=row.insertCell(); totCell.className='gv-rowtot';
+    totCell.id=`gvrt_${almacen}_${gvSan(color)}`;
+    totCell.innerHTML='<span class="gv-tot-pill">0</span>';
+  });
+  wrap.appendChild(t);
+}
+function gvRebuildMatrix(){
+  if (document.getElementById('gv-comodin').checked) return;
+  const colors=[...gvSelColors], sizes=[...gvSelSizes];
+  const ms=document.getElementById('gv-matrix-section');
+  if(!colors.length||!sizes.length){ ms.style.display='none'; return; }
+  ms.style.display=''; gvBuildMatrix('aclla',colors,sizes); gvBuildMatrix('hbolt',colors,sizes);
+}
+function gvUpdateRowTotal(almacen,color,sizes){
+  let sum=0;
+  sizes.forEach(s=>{ const el=document.getElementById(`gvqty_${almacen}_${gvSan(color)}_${gvSan(s)}`); if(el&&el.value!=='')sum+=parseInt(el.value)||0; });
+  const tot=document.getElementById(`gvrt_${almacen}_${gvSan(color)}`);
+  if(tot)tot.innerHTML=`<span class="gv-tot-pill">${sum}</span>`;
+}
+function gvGetQty(almacen,color,size){
+  const el=document.getElementById(`gvqty_${almacen}_${gvSan(color)}_${gvSan(size)}`);
+  if(!el||el.value==='')return ''; return parseInt(el.value)||0;
+}
+function gvShowError(msg){
+  const el=document.getElementById('gv-error-msg'); el.textContent=msg; el.style.display='block';
+  setTimeout(()=>el.style.display='none',3500);
+}
+
+function gvAddProduct(){
+  const name=document.getElementById('gv-prod-name').value.trim();
+  const cost=parseFloat(document.getElementById('gv-prod-cost').value);
+  const price=parseFloat(document.getElementById('gv-prod-price').value);
+  const cat=document.getElementById('gv-prod-cat').value;
+  const afect=document.getElementById('gv-prod-afect').value;
+  const stockMin=document.getElementById('gv-prod-stockmin').value;
+  const marca=document.getElementById('gv-prod-marca').value.trim();
+  const comodin=document.getElementById('gv-comodin').checked;
+
+  if(!name) return gvShowError('Ingresa el nombre del producto');
+  if(isNaN(cost)||cost<=0) return gvShowError('Ingresa un precio de costo válido');
+  if(isNaN(price)||price<=0) return gvShowError('Ingresa un precio de venta válido');
+
+  // resolver raíz por si el nombre no disparó el input (ej. pegado)
+  if(!gvActiveStem) gvOnNameInput();
+  const stem=gvActiveStem, dashed=gvActiveDashed;
+
+  if(comodin){
+    const a=parseInt(document.getElementById('gv-comodin-aclla').value)||0;
+    const h=parseInt(document.getElementById('gv-comodin-hbolt').value)||0;
+    const code=`${stem}-V-PALE`;
+    gvProducts.push({ name, cost, price, cat, afect, stockMin:stockMin||'', marca, comodin:true,
+      colors:[], sizes:[], stockData:{}, comodinStock:{aclla:a, hbolt:h}, code });
+  } else {
+    if(gvSelColors.size===0) return gvShowError('Selecciona al menos un color');
+    if(gvSelSizes.size===0) return gvShowError('Selecciona al menos una talla');
+    const colors=[...gvSelColors], sizes=[...gvSelSizes];
+    const stockData={};
+    colors.forEach(color=>{ stockData[color]={}; sizes.forEach(size=>{ stockData[color][size]={aclla:gvGetQty('aclla',color,size), hbolt:gvGetQty('hbolt',color,size)}; }); });
+    gvProducts.push({ name, cost, price, cat, afect, stockMin:stockMin||'', marca, comodin:false, colors, sizes, stockData, stem, dashed });
+  }
+
+  // reset
+  gvSelColors.clear(); gvSelSizes.clear();
+  ['gv-prod-name','gv-prod-cost','gv-prod-price','gv-prod-stockmin','gv-prod-marca','gv-comodin-aclla','gv-comodin-hbolt'].forEach(id=>{const e=document.getElementById(id); if(e)e.value='';});
+  document.getElementById('gv-comodin').checked=false; gvToggleComodin();
+  document.getElementById('gv-model-hint').textContent=''; gvActiveStem=null;
+  gvRenderColors(); gvRenderSizes();
+  document.getElementById('gv-matrix-section').style.display='none';
+  gvRenderQueue(); gvRebuildRows();
+  document.getElementById('gv-prod-name').focus();
+}
+
+function gvRemoveProduct(i){ gvProducts.splice(i,1); gvRenderQueue(); gvRebuildRows(); }
+
+function gvRenderQueue(){
+  const qs=document.getElementById('gv-queue-section'), qd=document.getElementById('gv-product-queue');
+  if(!gvProducts.length){ qs.style.display='none'; return; }
+  qs.style.display=''; qd.innerHTML='';
+  gvProducts.forEach((p,i)=>{
+    let metaHtml;
+    if(p.comodin){
+      const t=(p.comodinStock.aclla||0)+(p.comodinStock.hbolt||0);
+      metaHtml=`Modelo completo · 1 código <strong>${p.code}</strong> · S/. ${p.cost} costo / S/. ${p.price} venta${t?` · Stock ${t}`:''}`;
+    } else {
+      const vars=p.colors.length*p.sizes.length; let ta=0,tb=0;
+      p.colors.forEach(c=>p.sizes.forEach(s=>{ta+=parseInt(p.stockData[c][s].aclla)||0;tb+=parseInt(p.stockData[c][s].hbolt)||0;}));
+      metaHtml=`${p.colors.length} colores · ${p.sizes.length} tallas · <strong>${vars} variantes</strong> · S/. ${p.cost} costo / S/. ${p.price} venta${ta||tb?` · ACLLA ${ta} · HBOLT ${tb}`:''}`;
+    }
+    const d=document.createElement('div'); d.className='gv-queue-item';
+    d.innerHTML=`<div><div class="gv-qi-name">${escapeHTML(p.name)}</div><div class="gv-qi-meta">${metaHtml}</div></div><button class="gv-remove-btn" onclick="gvRemoveProduct(${i})">×</button>`;
+    qd.appendChild(d);
+  });
+}
+
+function gvRebuildRows(){
+  gvAllRows=[];
+  gvProducts.forEach(p=>{
+    if(p.comodin){
+      gvAllRows.push({ barcode:p.code, codigo:p.code, unidad:'PRODUCTO (UND)', nombre:p.name,
+        costo:p.cost, afect:p.afect, compra:'SI', venta:'SI', almacenable:'SI', stockMin:p.stockMin, marca:p.marca,
+        stockAclla:p.comodinStock.aclla||'', stockHbolt:p.comodinStock.hbolt||'', precio:p.price,
+        color:'', talla:'', cat:p.cat, tienda:'SI' });
+    } else {
+      p.colors.forEach(color=>p.sizes.forEach(size=>{
+        const code=gvBuildCode(p.stem, size, color, p.dashed);
+        const sd=p.stockData[color][size];
+        gvAllRows.push({ barcode:code, codigo:code, unidad:'PRODUCTO (UND)',
+          nombre:`${p.name} - ${color} - ${size}`, costo:p.cost, afect:p.afect, compra:'SI', venta:'SI', almacenable:'SI',
+          stockMin:p.stockMin, marca:p.marca, stockAclla:sd.aclla, stockHbolt:sd.hbolt, precio:p.price,
+          color, talla:size, cat:p.cat, tienda:'SI' });
+      }));
+    }
+  });
+  gvRenderPreview();
+}
+
+function gvRenderPreview(){
+  const ps=document.getElementById('gv-preview-section');
+  if(!gvAllRows.length){ ps.style.display='none'; return; }
+  ps.style.display='';
+  const avg=Math.round(gvAllRows.length/Math.max(gvProducts.length,1));
+  document.getElementById('gv-stats-row').innerHTML=`
+    <div class="gv-stat"><div class="gv-stat-num">${gvProducts.length}</div><div class="gv-stat-label">productos</div></div>
+    <div class="gv-stat"><div class="gv-stat-num">${gvAllRows.length}</div><div class="gv-stat-label">variantes / códigos</div></div>
+    <div class="gv-stat"><div class="gv-stat-num">${avg}</div><div class="gv-stat-label">variantes por producto</div></div>`;
+  document.getElementById('gv-preview-body').innerHTML=gvAllRows.map(r=>`<tr>
+    <td>${r.barcode}</td><td>${r.codigo}</td><td>PRODUCTO (UND)</td>
+    <td style="min-width:200px">${escapeHTML(r.nombre)}</td><td>${r.costo}</td>
+    <td style="font-size:11px;min-width:150px">${r.afect}</td>
+    <td><span class="gv-badge">SI</span></td><td><span class="gv-badge">SI</span></td><td><span class="gv-badge">SI</span></td>
+    <td>${r.stockMin}</td><td>${escapeHTML(r.marca)}</td>
+    <td style="text-align:center">${r.stockAclla===''?'—':r.stockAclla}</td>
+    <td style="text-align:center">${r.stockHbolt===''?'—':r.stockHbolt}</td>
+    <td>${r.precio}</td><td>${escapeHTML(r.color)}</td><td>${escapeHTML(r.talla)}</td><td>${r.cat}</td>
+    <td><span class="gv-badge">SI</span></td></tr>`).join('');
+}
+
+// Excel de carga masiva (mismo formato que tu sistema)
+function gvDownloadExcel(){
+  if(!gvAllRows.length) return;
+  // helper: convierte vacío/undefined/NaN a null para que la celda no se cree
+  const n = v => (v==='' || v==null || (typeof v==='number' && isNaN(v))) ? null : v;
+  // Fila 1 (encabezados agrupados): null donde antes había '' (huecos bajo los rótulos fusionados)
+  const h1=['Información del producto',null,null,null,null,null,null,null,null,'Tipo de operación',null,null,'Campos adicionales',null,'Stock Por Almacén',null,'LISTA 0 - (17597)','Variables',null,null,'Visibilidad del producto'];
+  const h2=['Código de barras','Código','Unidad de medida','Nombre','Peso','Código SUNAT','Descripción','Precio costo','Afectación','Compra','Venta','Almacenable','Stock mínimo','Marca','Stock inicial - ALMACEN CC ACLLA - 16732','Stock inicial - ALMACEN HBOLT - 16820','Precio venta - 17597','COLORES - 9839','TALLAS - 9840','CATEGORIA - 9866','TIENDA CC ACLLA - GAMARRA - 16426'];
+  const data=gvAllRows.map(r=>[
+    n(r.barcode), n(r.codigo), n(r.unidad), n(r.nombre),
+    null, null, null,                           // Peso · Código SUNAT · Descripción
+    n(r.costo), n(r.afect), n(r.compra), n(r.venta), n(r.almacenable),
+    n(r.stockMin), n(r.marca),
+    n(r.stockAclla), n(r.stockHbolt),
+    n(r.precio),
+    n(r.color), n(r.talla),
+    n(r.cat), n(r.tienda)
+  ]);
+  const ws=XLSX.utils.aoa_to_sheet([h1,h2,...data]);
+  // Red de seguridad: barrer cualquier celda que se haya colado con string vacío y recalcular el rango
+  let maxR=0, maxC=0;
+  Object.keys(ws).forEach(addr=>{
+    if(addr.startsWith('!')) return;
+    const c=ws[addr];
+    if((c.t==='s' && c.v==='') || c.v==null){ delete ws[addr]; return; }
+    const rc=XLSX.utils.decode_cell(addr);
+    if(rc.r>maxR) maxR=rc.r;
+    if(rc.c>maxC) maxC=rc.c;
+  });
+  ws['!ref']=XLSX.utils.encode_range({s:{r:0,c:0}, e:{r:maxR,c:maxC}});
+  ws['!cols']=[14,16,14,32,6,10,10,10,24,8,8,10,10,10,16,16,14,12,8,12,22].map(w=>({wch:w}));
+  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Productos');
+  const d=new Date();
+  XLSX.writeFile(wb,`CM_Productos_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.xlsx`);
+  showToast(`✓ Excel de carga masiva descargado (${gvAllRows.length} filas)`);
+}
+
+// Excel de códigos de barras, repetidos por stock — igual que en Etiquetas
+// SOLO incluye variantes con stock > 0
+// Orden: producto (raíz: prefijo alfabético + número) → talla (orden de prenda) → color (alfabético)
+function gvDownloadBarcodes(){
+  if(!gvAllRows.length) return;
+  const SIZE_ORDER = ['XS','S','M','L','XL','XXL','XXXL','3XL','4XL'];
+  const sizeRank = s => {
+    if(!s) return -1;                                       // comodín / sin talla
+    const i = SIZE_ORDER.indexOf(String(s).toUpperCase());
+    return i >= 0 ? i : 1000;                               // tallas custom después de las estándar
+  };
+  const entries = gvAllRows.map(r => {
+    const qty = (parseInt(r.stockAclla)||0) + (parseInt(r.stockHbolt)||0);
+    const m = String(r.barcode).match(/^([A-Za-z]+)(\d+)/);
+    return {
+      barcode: r.barcode,
+      qty,
+      prefix: m ? m[1] : '',
+      num:    m ? parseInt(m[2],10) : 0,
+      sRank:  sizeRank(r.talla),
+      sRaw:   (r.talla||'').toUpperCase(),
+      color:  r.color || ''
+    };
+  }).filter(e => e.qty > 0);
+
+  if(!entries.length){ gvShowError('Ninguna variante tiene stock — no hay códigos para exportar'); return; }
+
+  entries.sort((a,b) => {
+    if (a.prefix !== b.prefix)  return a.prefix.localeCompare(b.prefix);
+    if (a.num    !== b.num)     return a.num - b.num;
+    if (a.sRank  !== b.sRank)   return a.sRank - b.sRank;
+    if (a.sRaw   !== b.sRaw)    return a.sRaw.localeCompare(b.sRaw,'es');
+    return a.color.localeCompare(b.color,'es');
+  });
+
+  const rows=[['Código de barras']]; let total=0;
+  entries.forEach(e => { for(let i=0;i<e.qty;i++){ rows.push([e.barcode]); total++; } });
+
+  const ws=XLSX.utils.aoa_to_sheet(rows); ws['!cols']=[{wch:22}];
+  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Códigos');
+  const fecha=new Date().toISOString().slice(0,10);
+  XLSX.writeFile(wb,`DALIZA_codigos_${fecha}.xlsx`);
+  showToast(`✓ Excel de códigos descargado (${total} código${total!==1?'s':''} con stock)`);
+}
+
+// Inyecta las variantes generadas a la pestaña Etiquetas (solo en memoria)
+function gvSendToLabels(){
+  if(!gvAllRows.length){ gvShowError('No hay variantes para enviar'); return; }
+  let added=0;
+  gvAllRows.forEach(r=>{
+    const stock=(parseInt(r.stockAclla)||0)+(parseInt(r.stockHbolt)||0);
+    const base = r.color||r.talla ? r.nombre.split(' - ')[0] : r.nombre;
+    const prod={ nombre:r.nombre, base, color:r.color, talla:r.talla, barcode:r.barcode,
+      cinterno:r.codigo, stock, precio:r.precio, costo:r.costo };
+    if(productIndex.has(r.barcode)){
+      // actualizar el existente sumando stock nuevo
+      const ex=productIndex.get(r.barcode); ex.stock += stock;
+    } else {
+      PRODUCTS.push(prod); productIndex.set(r.barcode, prod); added++;
+    }
+  });
+  buildFilters(); updateStats(); renderProducts(); gvRebuildFromProducts();
+  switchView('etiquetas');
+  showToast(`✓ ${added} prenda${added!==1?'s':''} nueva${added!==1?'s':''} en Etiquetas. Búscalas y agrégalas a la lista de impresión.`);
 }
 </script>
 </body>
