@@ -929,6 +929,12 @@
   .gv-qty-input.has-val { background: var(--gold) !important; border-color: var(--gold) !important; color: var(--ink); font-weight: 600; }
   .gv-rowtot { background: var(--cream); font-size: 12px; font-weight: 600; padding: 6px 10px; }
   .gv-tot-pill { display: inline-block; padding: 2px 9px; border-radius: 10px; font-size: 11px; background: var(--gold-light); color: var(--ink); }
+  .gv-totals-row td.color-cell { font-weight: 700; color: var(--ink); background: var(--cream); }
+  .gv-grand-cell { background: var(--cream); padding: 6px 10px; }
+  .gv-grand-pill { display: inline-block; padding: 3px 12px; border-radius: 12px; font-size: 13px; font-weight: 700; background: var(--gold); color: var(--ink); }
+  .gv-combined-total { margin-top: 1rem; padding: 12px 18px; background: var(--cream); border: 1px solid var(--border); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .gv-combined-label { font-size: 13px; color: var(--ink); }
+  .gv-combined-pill { display: inline-block; padding: 6px 18px; border-radius: 14px; font-size: 16px; font-weight: 700; background: var(--gold); color: var(--ink); }
   .gv-queue-item { display: flex; align-items: flex-start; justify-content: space-between; padding: 11px 14px; background: var(--cream); border-radius: 8px; margin-bottom: 6px; }
   .gv-qi-name { font-size: 14px; font-weight: 600; color: var(--ink); }
   .gv-qi-meta { font-size: 12px; color: var(--muted); margin-top: 3px; }
@@ -1190,6 +1196,10 @@
           <div class="gv-matrix-col-title">📦 HBOLT (almacén secundario)</div>
           <div class="gv-matrix-wrap" id="gv-matrix-hbolt"></div>
         </div>
+      </div>
+      <div id="gv-grand-combined" class="gv-combined-total">
+        <span class="gv-combined-label">Total combinado <strong>ACLLA + HBOLT</strong></span>
+        <span class="gv-combined-pill"><span id="gv-grand-combined-num">0</span></span>
       </div>
       <div style="font-size:12px;color:var(--muted);margin-top:.75rem">Deja en blanco si no hay stock para esa variante.</div>
     </div>
@@ -2328,13 +2338,24 @@ function gvBuildMatrix(almacen, colors, sizes){
       const inp=document.createElement('input');
       inp.type='number'; inp.min='0'; inp.step='1'; inp.className='gv-qty-input'; inp.placeholder='0';
       inp.id=`gvqty_${almacen}_${gvSan(color)}_${gvSan(size)}`;
-      inp.addEventListener('input',()=>{ inp.classList.toggle('has-val', inp.value!=='' && parseInt(inp.value)>0); gvUpdateRowTotal(almacen,color,sizes); });
+      inp.addEventListener('input',()=>{ inp.classList.toggle('has-val', inp.value!=='' && parseInt(inp.value)>0); gvUpdateAllTotals(almacen,colors,sizes); });
       cell.appendChild(inp);
     });
     const totCell=row.insertCell(); totCell.className='gv-rowtot';
     totCell.id=`gvrt_${almacen}_${gvSan(color)}`;
     totCell.innerHTML='<span class="gv-tot-pill">0</span>';
   });
+  // Fila de totales: subtotal por talla + total general
+  const totRow = tbody.insertRow(); totRow.className = 'gv-totals-row';
+  const labelCell = totRow.insertCell(); labelCell.className = 'color-cell'; labelCell.textContent = 'Total';
+  sizes.forEach(size => {
+    const c = totRow.insertCell(); c.className = 'gv-rowtot';
+    c.id = `gvct_${almacen}_${gvSan(size)}`;
+    c.innerHTML = '<span class="gv-tot-pill">0</span>';
+  });
+  const grandCell = totRow.insertCell(); grandCell.className = 'gv-grand-cell';
+  grandCell.id = `gvgt_${almacen}`;
+  grandCell.innerHTML = '<span class="gv-grand-pill">0</span>';
   wrap.appendChild(t);
 }
 function gvRebuildMatrix(){
@@ -2343,12 +2364,37 @@ function gvRebuildMatrix(){
   const ms=document.getElementById('gv-matrix-section');
   if(!colors.length||!sizes.length){ ms.style.display='none'; return; }
   ms.style.display=''; gvBuildMatrix('aclla',colors,sizes); gvBuildMatrix('hbolt',colors,sizes);
+  gvUpdateCombinedTotal();
 }
-function gvUpdateRowTotal(almacen,color,sizes){
-  let sum=0;
-  sizes.forEach(s=>{ const el=document.getElementById(`gvqty_${almacen}_${gvSan(color)}_${gvSan(s)}`); if(el&&el.value!=='')sum+=parseInt(el.value)||0; });
-  const tot=document.getElementById(`gvrt_${almacen}_${gvSan(color)}`);
-  if(tot)tot.innerHTML=`<span class="gv-tot-pill">${sum}</span>`;
+// Recalcula filas, columnas, total general por almacén y el combinado
+function gvUpdateAllTotals(almacen, colors, sizes){
+  const get = (color,size) => parseInt((document.getElementById(`gvqty_${almacen}_${gvSan(color)}_${gvSan(size)}`)||{}).value) || 0;
+  let grand = 0;
+  colors.forEach(color => {
+    let rowSum = 0;
+    sizes.forEach(size => { rowSum += get(color,size); });
+    const rt = document.getElementById(`gvrt_${almacen}_${gvSan(color)}`);
+    if (rt) rt.innerHTML = `<span class="gv-tot-pill">${rowSum}</span>`;
+    grand += rowSum;
+  });
+  sizes.forEach(size => {
+    let colSum = 0;
+    colors.forEach(color => { colSum += get(color,size); });
+    const ct = document.getElementById(`gvct_${almacen}_${gvSan(size)}`);
+    if (ct) ct.innerHTML = `<span class="gv-tot-pill">${colSum}</span>`;
+  });
+  const gt = document.getElementById(`gvgt_${almacen}`);
+  if (gt) gt.innerHTML = `<span class="gv-grand-pill">${grand}</span>`;
+  gvUpdateCombinedTotal();
+}
+function gvUpdateCombinedTotal(){
+  const read = al => {
+    const el = document.querySelector(`#gvgt_${al} .gv-grand-pill`);
+    return el ? parseInt(el.textContent)||0 : 0;
+  };
+  const sum = read('aclla') + read('hbolt');
+  const out = document.getElementById('gv-grand-combined-num');
+  if (out) out.textContent = sum;
 }
 function gvGetQty(almacen,color,size){
   const el=document.getElementById(`gvqty_${almacen}_${gvSan(color)}_${gvSan(size)}`);
