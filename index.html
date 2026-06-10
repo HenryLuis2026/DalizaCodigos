@@ -847,7 +847,46 @@
     .layout-main { grid-template-columns: 240px 1fr; }
   }
 
-  /* ── TABS ── */
+  /* ── MATRIZ (vista de Etiquetas, comparte estética con generador) ── */
+  .matrix-product {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1.25rem; margin-bottom: 1.25rem;
+  }
+  .matrix-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 12px; margin-bottom: 1rem; flex-wrap: wrap;
+  }
+  .matrix-title { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: var(--ink); line-height: 1.1; }
+  .matrix-sub { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .matrix-actions { display: flex; gap: 8px; flex-shrink: 0; flex-wrap: wrap; }
+  .matrix-fill-btn, .matrix-add-btn {
+    height: 36px; padding: 0 14px; border-radius: 7px; border: 1px solid var(--border);
+    background: var(--cream); color: var(--ink); font-size: 13px; cursor: pointer;
+    font-family: 'Jost', sans-serif; white-space: nowrap; transition: background .12s;
+  }
+  .matrix-fill-btn:hover { background: #fff; }
+  .matrix-add-btn { background: var(--ink); color: var(--cream); border-color: var(--ink); font-weight: 500; }
+  .matrix-add-btn:hover { background: #2A2420; }
+  .matrix-table-wrap { overflow-x: auto; }
+  .m-stack { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .m-stock-pill {
+    display: inline-block; padding: 1px 8px; border-radius: 8px;
+    background: rgba(0,0,0,0.06); color: var(--muted); font-size: 10px;
+    font-weight: 600; line-height: 1.4; letter-spacing: .02em;
+  }
+  .m-stock-pill.zero { background: rgba(0,0,0,0.03); color: rgba(0,0,0,0.3); }
+  .m-cell.no-sku {
+    background: rgba(0,0,0,0.04) !important; color: var(--muted);
+    font-size: 18px; cursor: not-allowed;
+  }
+  .matrix-empty { text-align: center; padding: 2rem; color: var(--muted); font-style: italic; }
+  /* dot dentro del label de color (compartido entre generador y etiquetas) */
+  .gv-color-label-inner .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    flex-shrink: 0; border: 1px solid rgba(0,0,0,.12);
+  }
+  /* en la matriz de etiquetas el input ocupa el ancho de la celda */
+  #view-etiquetas .gv-qty-input { width: 100%; box-sizing: border-box; height: 32px; }
   .tabbar { display: flex; gap: 4px; background: rgba(255,255,255,0.06); padding: 4px; border-radius: 8px; }
   .tab-btn {
     background: transparent; border: none; color: var(--muted);
@@ -1088,7 +1127,8 @@
         <div class="results-count" id="results-count">Cargando...</div>
       </div>
       <div class="view-toggle">
-        <button class="view-btn active" onclick="setView('grid', this)">Tarjetas</button>
+        <button class="view-btn active" onclick="setView('matrix', this)">Matriz</button>
+        <button class="view-btn" onclick="setView('grid', this)">Tarjetas</button>
         <button class="view-btn" onclick="setView('list', this)">Lista</button>
       </div>
     </div>
@@ -1134,7 +1174,7 @@
           <label>Categoría</label>
           <select id="gv-prod-cat">
             <option>Pantalón</option><option>Blusa</option><option>Chaleco</option>
-            <option>Body</option><option>Chompa</option><option>Básico</option><option>Por Mayor</option>
+            <option>Body</option><option>Chompa</option><option>Básico</option><option>Saco</option><option>Por Mayor</option>
           </select>
         </div>
         <div>
@@ -1344,7 +1384,7 @@ let PRODUCTS = [{"nombre":"Blusa Manga 0 - Negro - M","base":"Blusa Manga 0","co
 
 let productIndex = new Map(PRODUCTS.map(p => [p.barcode, p]));
 let cart = {};
-let currentView = 'grid';
+let currentView = 'matrix';
 let stockFilter = 'instock';
 let selectedBarcodes = new Set();
 
@@ -1368,9 +1408,12 @@ window.addEventListener('DOMContentLoaded', () => {
   elToast        = $('toast');
 
   buildFilters();
+  gvRebuildFromProducts();
   renderProducts();
   updateStats();
-  gvRebuildFromProducts();
+  // Vista matriz por defecto: ocultar la barra de selección
+  const sb = document.querySelector('.select-bar');
+  if (sb) sb.style.display = 'none';
 });
 
 // ─── FILTERS ─────────────────────────────────────────────────────────────────
@@ -1430,13 +1473,180 @@ function renderProducts() {
     return;
   }
 
-  if (currentView === 'grid') {
+  if (currentView === 'matrix') {
+    elContainer.innerHTML = renderMatrixView(filtered);
+    // marcar visualmente inputs con valor
+    elContainer.querySelectorAll('.gv-qty-input').forEach(inp => {
+      const upd = () => inp.classList.toggle('has-val', inp.value !== '' && parseInt(inp.value) > 0);
+      upd();
+      inp.addEventListener('input', upd);
+    });
+  } else if (currentView === 'grid') {
     elContainer.innerHTML = `<div class="product-grid">${filtered.map(cardHTML).join('')}</div>`;
   } else {
     elContainer.innerHTML =
       `<div class="list-header"><span></span><span>Nombre</span><span>Color</span><span>Talla</span><span>Código</span><span>Precio</span><span>Stock</span></div>` +
       `<div class="product-list">${filtered.map(rowHTML).join('')}</div>`;
   }
+}
+
+// ─── MATRIZ ──────────────────────────────────────────────────────────────────
+const CANONICAL_SIZES = ['XS','S','M','L','XL','XXL','XXXL','3XL','4XL'];
+function sizeRankEt(s) {
+  if (!s) return 9999;
+  const i = CANONICAL_SIZES.indexOf(String(s).toUpperCase());
+  return i >= 0 ? i : 1000;
+}
+
+function groupByBase(products) {
+  const groups = new Map();
+  products.forEach(p => {
+    const b = p.base || p.nombre || '(sin nombre)';
+    if (!groups.has(b)) groups.set(b, { base: b, variants: [], colors: new Set(), sizes: new Set(), totalStock: 0, maxPrecio: 0, stems: new Set() });
+    const g = groups.get(b);
+    g.variants.push(p);
+    g.colors.add(p.color || '');
+    g.sizes.add(p.talla || '');
+    g.totalStock += p.stock || 0;
+    if ((p.precio || 0) > g.maxPrecio) g.maxPrecio = p.precio || 0;
+    const m = String(p.cinterno || p.barcode || '').match(/^([A-Za-z]+\d+)/);
+    if (m) g.stems.add(m[1]);
+  });
+  const arr = [...groups.values()];
+  arr.forEach(g => {
+    g.colorsArr = [...g.colors].sort((a, b) => {
+      if (!a && b) return 1;
+      if (!b && a) return -1;
+      return a.localeCompare(b, 'es');
+    });
+    g.sizesArr = [...g.sizes].sort((a, b) => {
+      if (!a && b) return 1;
+      if (!b && a) return -1;
+      const ra = sizeRankEt(a), rb = sizeRankEt(b);
+      if (ra !== rb) return ra - rb;
+      return a.localeCompare(b, 'es');
+    });
+    g.lookup = new Map();
+    g.variants.forEach(v => g.lookup.set(`${v.color || ''}|${v.talla || ''}`, v));
+  });
+  // Orden por stock total descendente; empate -> alfabético por nombre
+  arr.sort((a, b) => (b.totalStock - a.totalStock) || a.base.localeCompare(b.base, 'es'));
+  return arr;
+}
+
+function renderMatrixView(filtered) {
+  const groups = groupByBase(filtered);
+  if (!groups.length) return '<div class="matrix-empty">No se encontraron prendas con esos filtros.</div>';
+  return groups.map(matrixBlockHTML).join('');
+}
+
+function matrixBlockHTML(g) {
+  const sizeHeaders = g.sizesArr.map(s => `<th>${s ? escapeHTML(s) : '—'}</th>`).join('');
+  const stemLabel = g.stems.size > 0 ? [...g.stems].sort().join(' / ') : '';
+  const subParts = [
+    stemLabel,
+    `${g.variants.length} variante${g.variants.length !== 1 ? 's' : ''}`,
+    `stock total ${g.totalStock}`,
+    g.maxPrecio > 0 ? `S/ ${g.maxPrecio.toFixed(2)}` : null
+  ].filter(Boolean);
+  const subInfo = subParts.join(' · ');
+
+  const hexFor = name => (typeof GV_COLOR_HEX !== 'undefined' && GV_COLOR_HEX[name]) || '#b8965a';
+
+  const rows = g.colorsArr.map(color => {
+    let rowSum = 0;
+    const cells = g.sizesArr.map(size => {
+      const v = g.lookup.get(`${color}|${size}`);
+      if (!v) return `<td class="m-cell no-sku">—</td>`;
+      rowSum += v.stock || 0;
+      const zeroCls = (v.stock > 0) ? '' : ' zero';
+      const cartQty = cart[v.barcode] ? cart[v.barcode].qty : '';
+      return `<td class="m-cell">
+        <div class="m-stack">
+          <span class="m-stock-pill${zeroCls}">${v.stock}</span>
+          <input class="gv-qty-input" type="number" min="0" step="1" placeholder="0" id="qty-${v.barcode}" value="${cartQty}">
+        </div>
+      </td>`;
+    }).join('');
+    const dot = color ? `<span class="dot" style="background:${hexFor(color)}"></span>` : '';
+    const label = color ? escapeHTML(color) : '<span class="m-dash">—</span>';
+    return `<tr>
+      <td class="color-cell"><div class="gv-color-label-inner">${dot}${label}</div></td>
+      ${cells}
+      <td class="gv-rowtot"><span class="gv-tot-pill">${rowSum}</span></td>
+    </tr>`;
+  }).join('');
+
+  const colTots = g.sizesArr.map(size => {
+    let s = 0;
+    g.colorsArr.forEach(color => { const v = g.lookup.get(`${color}|${size}`); if (v) s += v.stock || 0; });
+    return `<td class="gv-rowtot"><span class="gv-tot-pill">${s}</span></td>`;
+  }).join('');
+
+  const jsArg = g.base.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+  return `<div class="matrix-product">
+    <div class="matrix-header">
+      <div>
+        <div class="matrix-title">${escapeHTML(g.base)}</div>
+        <div class="matrix-sub">${escapeHTML(subInfo)}</div>
+      </div>
+      <div class="matrix-actions">
+        <button class="matrix-fill-btn" onclick="matrixFillStock('${jsArg}')" title="Pre-llena las celdas vacías con el stock de cada variante">Stock = cantidad</button>
+        <button class="matrix-add-btn" onclick="matrixAddProduct('${jsArg}')">+ Agregar a la lista</button>
+      </div>
+    </div>
+    <div class="matrix-table-wrap">
+      <table class="gv-mtable">
+        <thead><tr><th class="lh">Color \\ Talla</th>${sizeHeaders}<th>Total</th></tr></thead>
+        <tbody>
+          ${rows}
+          <tr class="gv-totals-row">
+            <td class="color-cell">Total</td>
+            ${colTots}
+            <td class="gv-grand-cell"><span class="gv-grand-pill">${g.totalStock}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+// Pre-llena las celdas vacías o en 0 con el stock de cada variante. Respeta lo escrito manualmente.
+function matrixFillStock(base) {
+  const variants = PRODUCTS.filter(p => p.base === base && p.barcode);
+  let filled = 0;
+  variants.forEach(p => {
+    const inp = document.getElementById('qty-' + p.barcode);
+    if (!inp) return;
+    const current = parseInt(inp.value) || 0;
+    if (current > 0) return; // preserva entradas manuales
+    if (p.stock > 0) {
+      inp.value = p.stock;
+      inp.classList.add('has-val');
+      filled++;
+    }
+  });
+  showToast(filled > 0 ? `✓ Pre-llenadas ${filled} celda${filled !== 1 ? 's' : ''} con su stock` : 'ℹ️ No hay celdas vacías con stock disponible para llenar');
+}
+
+// Agrega todas las cantidades > 0 del producto a la lista de impresión en un solo paso
+function matrixAddProduct(base) {
+  const variants = PRODUCTS.filter(p => p.base === base && p.barcode);
+  let added = 0, totalLabels = 0;
+  variants.forEach(p => {
+    const inp = document.getElementById('qty-' + p.barcode);
+    if (!inp) return;
+    const q = parseInt(inp.value) || 0;
+    if (q <= 0) return;
+    if (cart[p.barcode]) cart[p.barcode].qty = q;   // si ya estaba, sustituimos por la cantidad mostrada (que ya incluía la previa al renderizar)
+    else cart[p.barcode] = { product: p, qty: q };
+    added++; totalLabels += q;
+  });
+  if (added === 0) { showToast(`⚠️ No hay cantidades para agregar en "${base}"`); return; }
+  renderCart();
+  const btn = document.querySelector('.print-list-btn');
+  if (btn) { btn.classList.remove('has-items'); void btn.offsetWidth; btn.classList.add('has-items'); }
+  showToast(`✓ ${totalLabels} etiqueta${totalLabels !== 1 ? 's' : ''} de ${added} variante${added !== 1 ? 's' : ''} de "${base}" a la lista`);
 }
 
 function cardHTML(p) {
@@ -1679,7 +1889,10 @@ function clearFilters() {
 function setView(v, btn) {
   currentView = v;
   document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  if (btn) btn.classList.add('active');
+  // En la vista matriz no aplica la selección por checkbox
+  const sb = document.querySelector('.select-bar');
+  if (sb) sb.style.display = (v === 'matrix') ? 'none' : '';
   renderProducts();
 }
 
@@ -1726,9 +1939,9 @@ function loadFile(event) {
       $('talla-filter').innerHTML = '<option value="">— Todas las tallas —</option>';
       buildFilters();
       updateStats();
+      gvRebuildFromProducts();
       renderProducts();
       renderCart();
-      gvRebuildFromProducts();
       // FIX BUG 5: resetear el input para poder cargar el mismo archivo de nuevo
       event.target.value = '';
       showToast(`✓ ${parsed.length} prendas cargadas desde "${file.name}"`);
@@ -2075,17 +2288,17 @@ const GV_COLOR_HEX = {
   'Maíz':'#f5d03c','Cocoa':'#5b3a29','Topo':'#9c8a78','Piedra':'#b8ada0','Rojo':'#b32d2d',
   'Mostaza':'#d4a017','Melón':'#f1a06a','Verde Botella':'#0b3d2e','Ladrillo':'#a64b2a','Paleta':'#b8965a'
 };
-const GV_CATEGORY_PREFIX = { 'Pantalón':'PT','Blusa':'BL','Chaleco':'CH','Body':'BO','Chompa':'CM','Básico':'BS','Por Mayor':'PM' };
+const GV_CATEGORY_PREFIX = { 'Pantalón':'PT','Blusa':'BL','Chaleco':'CH','Body':'BO','Chompa':'CM','Básico':'BS','Saco':'SC','Por Mayor':'PM' };
 // Primera palabra del nombre -> prefijo de código (clave sin tilde, minúscula)
 const GV_FIRSTWORD_PREFIX = {
   'pantalon':'PT','blusa':'BL','camisa':'BL','chaleco':'CH','catania':'CH',
   'chompa':'CM','cardigan':'CM','short':'SH','blazer':'BZ','conjunto':'CJ',
-  'body':'BO','basico':'BS'
+  'body':'BO','basico':'BS','saco':'SC'
 };
 // Primera palabra -> categoría del desplegable (mapeo a la más cercana). Short/Blazer/Conjunto no tienen cercana.
 const GV_FIRSTWORD_CATEGORY = {
   'pantalon':'Pantalón','blusa':'Blusa','camisa':'Blusa','chaleco':'Chaleco','catania':'Chaleco',
-  'chompa':'Chompa','cardigan':'Chompa','body':'Body','basico':'Básico'
+  'chompa':'Chompa','cardigan':'Chompa','body':'Body','basico':'Básico','saco':'Saco'
 };
 
 let gvSelColors = new Set(), gvSelSizes = new Set();
